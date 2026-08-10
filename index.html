@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wise Mind: A DBT Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app"></div>
+
+<!-- Modal root -->
+<div id="modal-root"></div>
+
+<!-- Toast root -->
+<div id="toast-root"></div>
+
+<!-- SVG defs (shared gradients etc.) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="grad-wisemind" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c5cff"/>
+      <stop offset="100%" stop-color="#34d1bf"/>
+    </linearGradient>
+    <linearGradient id="grad-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf6ec"/>
+      <stop offset="100%" stop-color="#f3ecff"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<script src="js/skills.js"></script>
+<script src="js/data.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
