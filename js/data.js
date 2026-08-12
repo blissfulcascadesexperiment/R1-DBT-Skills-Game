@@ -19,7 +19,12 @@ const SPECIES = [
   { id: 'wizard', name: 'Wizard', emoji: '🧙', desc: 'A spell-in-training mage (fictional)' },
   { id: 'alien', name: 'Alien', emoji: '👽', desc: 'An exchange student from space (fictional)' },
   { id: 'ghost', name: 'Ghost', emoji: '👻', desc: 'A friendly spirit (fictional)' },
-  { id: 'hero', name: 'Hero', emoji: '🦸', desc: 'A cape-wearing hero-in-training (fictional)' }
+  { id: 'hero', name: 'Hero', emoji: '🦸', desc: 'A cape-wearing hero-in-training (fictional)' },
+  { id: 'fairy', name: 'Fairy', emoji: '🧚', desc: 'A winged woodland sprite (fictional)' },
+  { id: 'werewolf', name: 'Werewolf', emoji: '🐺', desc: 'A wolf-human hybrid (fictional)' },
+  { id: 'werelion', name: 'Werelion', emoji: '🦁', desc: 'A lion in half-human form (fictional)' },
+  { id: 'vampire', name: 'Vampire', emoji: '🧛', desc: 'A night-friend with a big heart (fictional)' },
+  { id: 'schnauzer', name: 'Schnauzer', emoji: '🐕', desc: 'A plucky little pup (fictional)' }
 ];
 
 const SKIN_TONES = [
@@ -166,7 +171,12 @@ const PLAYER_PRESETS = [
   { id: 'merlin', name: 'Merlin', gender: 'he', ethnicity: 'Wizard apprentice', desc: 'Spells go sideways. Emotions too. Practicing.', personality: 'Curious and clumsy. Believes every problem has a spell — until the spell backfires into a lesson.', interests: 'Spell theory, potions, reading, disastrous magic experiments.', avatar: { species: 'wizard', outfit: 'wizard', accessory: 'none', shoes: 'boots' } },
   { id: 'nova', name: 'Nova', gender: 'she', ethnicity: 'Galactic exchange student', desc: 'Three eyes, one big heart, curious about "Earth feelings."', personality: 'Bright and bouncy. Sees human emotions as exotic flora — and wants to tend them all.', interests: 'Studying Earth customs, snacks, constellations, making pen pals across galaxies.', avatar: { species: 'alien', outfit: 'tee', accessory: 'none', shoes: 'none' } },
   { id: 'wisp', name: 'Wisp', gender: 'they', ethnicity: 'Benevolent ghost', desc: 'Floats through walls and emotions with equal ease.', personality: 'Old soul, dry wit. Has seen a lot of centuries of feelings; still surprised by how alive humans get.', interests: 'Foggy mornings, classical piano, watching sunrises from rooftops, warm tea.', avatar: { species: 'ghost', outfit: 'goth', accessory: 'none', shoes: 'none' } },
-  { id: 'blaze', name: 'Blaze', gender: 'he', ethnicity: 'Hero academy trainee', desc: 'Cape in the closet. Courage in progress.', personality: 'Brave on paper, nervous in person. Wants to save everyone; still learning to ask for help.', interests: 'Training, comic books, justice (and breakfast burritos).', avatar: { species: 'hero', outfit: 'superhero', accessory: 'crown', shoes: 'boots' } }
+  { id: 'blaze', name: 'Blaze', gender: 'he', ethnicity: 'Hero academy trainee', desc: 'Cape in the closet. Courage in progress.', personality: 'Brave on paper, nervous in person. Wants to save everyone; still learning to ask for help.', interests: 'Training, comic books, justice (and breakfast burritos).', avatar: { species: 'hero', outfit: 'superhero', accessory: 'crown', shoes: 'boots' } },
+  { id: 'pip', name: 'Pip', gender: 'they', ethnicity: 'Woodland sprite', desc: 'Tiny wings, huge feelings, endless glow.', personality: 'Bright and quick to laugh — and quick to cry. Learning that even a fairy needs to land sometimes.', interests: 'Dew-drop collecting, firefly chasing, humming lullabies, flower tea.', avatar: { species: 'fairy', skin: 'light', hair: 'long', hairColor: 'pink', eyes: 'teal', outfit: 'preppy', accessory: 'bow', shoes: 'flats' } },
+  { id: 'howl', name: 'Howl', gender: 'he', ethnicity: 'Wolf-human hybrid', desc: 'Big bark, soft heart, howls at his own feelings.', personality: 'Protective and loyal. Feels everything in howls — learning to speak instead of roar.', interests: 'Midnight runs, moon-gazing, howling practice, warm den naps.', avatar: { species: 'werewolf', outfit: 'hoodie', accessory: 'none', shoes: 'none' } },
+  { id: 'sami', name: 'Sami', gender: 'she', ethnicity: 'Lion half-form', desc: 'A mane of courage wrapped around a soft heart.', personality: 'Regal on the outside, anxious inside. Learning that asking for help is not a weakness.', interests: 'Sunset roars, grooming her mane, savanna walks, protecting the pride.', avatar: { species: 'werelion', outfit: 'formal', accessory: 'none', shoes: 'none' } },
+  { id: 'luna', name: 'Luna', gender: 'they', ethnicity: 'Vampire', desc: 'Pale, sleepy, and secretly a night owl.', personality: 'Gentle and brooding — dramatic about the small stuff, brave about the big stuff.', interests: 'Star-gazing, vintage novels, moonlit walks, warm blood-orange tea.', avatar: { species: 'vampire', skin: 'porcelain', hair: 'straight', hairColor: 'black', eyes: 'amber', outfit: 'goth', accessory: 'none', shoes: 'boots' } },
+  { id: 'sprocket', name: 'Sprocket', gender: 'she', ethnicity: 'Schnauzer', desc: 'Beard of wisdom, paws for adventure.', personality: 'Loyal, stubborn, and full of opinions. Barks at problems — learning to sit with them first.', interests: 'Chasing sticks, guarding the couch, sniffing everything, belly rubs.', avatar: { species: 'schnauzer', outfit: 'tee', accessory: 'none', shoes: 'none' } }
 ];
 
 /* ---------------- Stages ---------------- */

@@ -8,14 +8,20 @@ const UI = {
   params: {},
   creator: { name: '', gender: 'they', avatar: null, presetId: null },
   ctx: null, // audio context
+  ambient: null,       // active soundscape controller { id, master, nodes, timers }
+  ambientCfg: { id: null, volume: 70, muted: false },
+  ambientOpen: false,
+  worksheetsAge: 'teen',
 
   init() {
+    this.initAmbient();
+    try { const wa = localStorage.getItem('wsAge'); if (wa === 'teen' || wa === 'adult') this.worksheetsAge = wa; } catch (e) {}
     this.bindGlobal();
     const saved = Engine.load();
     const viewFromHash = (location.hash || '').replace(/^#\/?/, '');
     if (viewFromHash === 'movies' || viewFromHash.indexOf('movies/') === 0) {
       this.show('movies', { page: viewFromHash.split('/')[1] || 'orientation' });
-    } else if (viewFromHash && ['map', 'coach', 'badges', 'closet', 'quiz'].includes(viewFromHash)) {
+    } else if (viewFromHash && ['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(viewFromHash)) {
       this.show(viewFromHash);
     } else if (saved) {
       this.show('map');
@@ -26,7 +32,7 @@ const UI = {
     window.addEventListener('hashchange', () => {
       const v = (location.hash || '').replace(/^#\/?/, '');
       if (v === 'movies' || v.indexOf('movies/') === 0) { this.show('movies', { page: v.split('/')[1] || 'orientation' }); return; }
-      if (['map', 'coach', 'badges', 'closet', 'quiz'].includes(v)) this.show(v);
+      if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(v)) this.show(v);
     });
   },
 
@@ -43,6 +49,128 @@ const UI = {
       else if (type === 'badge') { osc.frequency.setValueAtTime(660, t); osc.frequency.setValueAtTime(880, t + 0.1); osc.frequency.setValueAtTime(1320, t + 0.2); gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4); osc.start(t); osc.stop(t + 0.45); }
       else if (type === 'click') { osc.frequency.setValueAtTime(440, t); gain.gain.setValueAtTime(0.08, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08); osc.start(t); osc.stop(t + 0.1); }
     } catch (e) {}
+  },
+
+  /* ---------- ambient soundscapes ---------- */
+  mkNoise(ctx) {
+    const len = Math.floor(ctx.sampleRate * 2);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  },
+
+  initAmbient() {
+    try {
+      const raw = localStorage.getItem('ambient');
+      if (raw) {
+        const c = JSON.parse(raw);
+        if (c && typeof c.volume === 'number') this.ambientCfg = Object.assign({ id: null, volume: 70, muted: false }, c);
+      }
+    } catch (e) {}
+    this.updateAmbient();
+  },
+
+  saveAmbient() {
+    try { localStorage.setItem('ambient', JSON.stringify(this.ambientCfg)); } catch (e) {}
+  },
+
+  ambientGain() {
+    const base = (this.ambientCfg.muted ? 0 : this.ambientCfg.volume / 100) * 0.9;
+    return Math.max(0, base);
+  },
+
+  toggleAmbient(id) {
+    if (this.ambient && this.ambient.id === id) {
+      this.stopAmbient();
+      this.ambientCfg.id = null;
+    } else {
+      this.startAmbient(id);
+    }
+    this.saveAmbient();
+    this.updateAmbient();
+  },
+
+  startAmbient(id) {
+    try {
+      const sc = SOUNDSCAPES[id];
+      if (!sc) return;
+      this.stopAmbient(true);
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      const master = this.ctx.createGain();
+      master.gain.value = this.ambientGain();
+      master.connect(this.ctx.destination);
+      const ctrl = sc.start(this.ctx, master);
+      this.ambient = { id, master, nodes: ctrl.nodes || [], timers: ctrl.timers || [] };
+      this.ambientCfg.id = id;
+      const a = AMBIENT.find(x => x.id === id);
+      this.toast('🎵 ' + (a ? a.name : 'Soundscape') + ' playing', 'teal');
+    } catch (e) {
+      this.toast('Audio isn\'t available here.', '');
+    }
+  },
+
+  stopAmbient(silent) {
+    if (!this.ambient) return;
+    const a = this.ambient;
+    this.ambient = null;
+    try {
+      (a.timers || []).forEach(id => clearInterval(id));
+      (a.nodes || []).forEach(n => { try { n.stop(); } catch (e) {} try { n.disconnect(); } catch (e) {} });
+      if (a.master) { try { a.master.disconnect(); } catch (e) {} }
+    } catch (e) {}
+    if (!silent) this.ambientCfg.id = null;
+  },
+
+  setAmbientVolume(v) {
+    this.ambientCfg.volume = Math.max(0, Math.min(100, isFinite(v) ? v : 70));
+    if (this.ambient && this.ambient.master) {
+      try { this.ambient.master.gain.setTargetAtTime(this.ambientGain(), this.ctx.currentTime, 0.05); } catch (e) {}
+    }
+    this.saveAmbient();
+    this.updateAmbient();
+  },
+
+  setAmbientMute(m) {
+    this.ambientCfg.muted = !!m;
+    if (this.ambient && this.ambient.master) {
+      try { this.ambient.master.gain.setTargetAtTime(this.ambientGain(), this.ctx.currentTime, 0.03); } catch (e) {}
+    }
+    this.saveAmbient();
+    this.updateAmbient();
+  },
+
+  updateAmbient() {
+    const root = document.getElementById('ambient-root');
+    if (!root) return;
+    const playing = this.ambient ? this.ambient.id : null;
+    root.innerHTML = `<button class="ambient-fab ${this.ambient ? 'on' : ''}" data-act="ambient-open" title="Ambient soundscapes" aria-label="Ambient soundscapes">${this.ambient ? '🔊' : '🎵'}</button>
+      ${this.ambientOpen ? `<div class="ambient-backdrop" data-act="ambient-close">
+        <div class="ambient-panel">
+          <button class="ambient-close" data-act="ambient-close">✕</button>
+          <h3>🌙 Ambient Soundscape</h3>
+          <p class="muted" style="margin:4px 0 14px">Fully generated in your browser — no audio files, no loops, no repetition.</p>
+          <div class="ambient-list">
+            ${AMBIENT.map(a => `<button class="ambient-item ${playing === a.id ? 'active' : ''}" data-act="ambient-toggle" data-id="${a.id}">
+              <span class="ambient-emoji">${a.emoji}</span>
+              <span class="ambient-meta"><b>${esc(a.name)}</b><i>${esc(a.desc)}</i></span>
+              <span class="ambient-dot">${playing === a.id ? '⏹' : '▶'}</span>
+            </button>`).join('')}
+          </div>
+          <div class="ambient-controls">
+            <div class="ambient-volrow">
+              <span>${this.ambientCfg.muted ? '🔇' : '🔊'}</span>
+              <input type="range" min="0" max="100" step="1" value="${this.ambientCfg.volume}" data-act="ambient-vol" aria-label="Ambient volume">
+              <span class="ambient-volnum">${this.ambientCfg.muted ? 0 : this.ambientCfg.volume}%</span>
+            </div>
+            <div class="btn-row" style="justify-content:center;margin-top:12px">
+              <button class="btn ${this.ambientCfg.muted ? 'gold' : 'ghost'} sm" data-act="ambient-mute">${this.ambientCfg.muted ? '🔇 Unmute' : '🔇 Mute'}</button>
+              <button class="btn ghost sm" data-act="ambient-stop">⏹ Stop</button>
+            </div>
+          </div>
+        </div>
+      </div>` : ''}`;
   },
 
   /* ---- speech narration (audio for the examples) ---- */
@@ -76,6 +204,8 @@ const UI = {
     document.addEventListener('input', e => {
       if (e.target && e.target.dataset && e.target.dataset.act === 'name') {
         this.handleAction('name', e.target.dataset, e);
+      } else if (e.target && e.target.dataset && e.target.dataset.act === 'ambient-vol') {
+        this.handleAction('ambient-vol', e.target.dataset, e);
       }
     });
   },
@@ -117,6 +247,20 @@ const UI = {
       case 'boss-retry': this.bossRetry(); break;
       case 'closet': this.openCloset(); break;
       case 'coach': this.show('coach'); break;
+      case 'worksheets': this.show('worksheets'); break;
+      case 'ws-age': this.worksheetsAge = (data.v === 'adult' ? 'adult' : 'teen'); try { localStorage.setItem('wsAge', this.worksheetsAge); } catch (e) {} this.renderAll(); break;
+      case 'ws-print': window.print(); break;
+      case 'dilemmas': this.show('dilemmas'); break;
+      case 'validation': this.show('validation'); break;
+      case 'games': this.show('games'); break;
+      case 'play-game': this.playGame(data.id); break;
+      case 'jeopardy-clue': this.jeopardySelect(data.cat, data.i); break;
+      case 'jeopardy-reveal': this.jeopardyReveal(); break;
+      case 'jeopardy-got': this.jeopardyScore(true); break;
+      case 'jeopardy-miss': this.jeopardyScore(false); break;
+      case 'jeopardy-restart': this.jeopardyRestart(); break;
+      case 'jeopardy-board': this.jeopardySelectBoard(data.id); break;
+      case 'jeopardy-boards': this.jeopardyShowBoards(); break;
       case 'badges': this.show('badges'); break;
       case 'movies': this.show('movies', { page: data.page || 'orientation' }); break;
       case 'quiz-start': this.startQuiz(); break;
@@ -126,6 +270,12 @@ const UI = {
       case 'stage-result-ok': this.closeModal(); this.show('map'); break;
       case 'result-next': this.show('map'); break;
       case 'apply-look': this.applyLook(); break;
+      case 'ambient-open': this.ambientOpen = true; this.updateAmbient(); break;
+      case 'ambient-close': this.ambientOpen = false; this.updateAmbient(); break;
+      case 'ambient-toggle': this.toggleAmbient(data.id); break;
+      case 'ambient-stop': this.stopAmbient(); this.ambientCfg.id = null; this.saveAmbient(); this.updateAmbient(); break;
+      case 'ambient-vol': this.setAmbientVolume(parseFloat(data.value)); break;
+      case 'ambient-mute': this.setAmbientMute(!this.ambientCfg.muted); break;
       case 'noop': break;
       default: break;
     }
@@ -140,7 +290,7 @@ const UI = {
     window.scrollTo(0, 0);
     if (view === 'movies') {
       try { history.replaceState(null, '', '#/movies/' + (this.params.page || 'orientation')); } catch (e) {}
-    } else if (['map', 'coach', 'badges', 'closet', 'quiz'].includes(view)) {
+    } else if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(view)) {
       try { history.replaceState(null, '', '#/' + view); } catch (e) {}
     }
   },
@@ -157,13 +307,19 @@ const UI = {
       case 'challenge': body = this.renderChallenge(); break;
       case 'boss': body = this.renderBoss(); break;
       case 'coach': body = this.renderCoach(); break;
+      case 'worksheets': body = this.renderWorksheets(); break;
       case 'movies': body = this.renderMovieIllustrations(); break;
       case 'quiz': body = this.renderMovieQuiz(); break;
+      case 'dilemmas': body = this.renderDilemmas(); break;
+      case 'validation': body = this.renderValidation(); break;
+      case 'games': body = this.renderGames(); break;
+      case 'jeopardy': body = this.renderJeopardy(); break;
       case 'badges': body = this.renderBadges(); break;
       case 'closet': body = this.renderCloset(); break;
       default: body = this.renderMap();
     }
     app.innerHTML = hud + body + this.renderFooter();
+    this.initVideoFallbacks(app);
   },
 
   renderHUD() {
@@ -205,6 +361,10 @@ const UI = {
           <button class="menu-btn" data-act="new-game"><span class="menu-ico" style="background:#e6e0ff">✨</span><span><b>New Game</b><span>Create a character and begin your journey</span></span></button>
           ${Engine.load() ? `<button class="menu-btn" data-act="continue"><span class="menu-ico" style="background:#d8f7f2">▶️</span><span><b>Continue</b><span>Pick up where you left off</span></span></button>` : ''}
           <button class="menu-btn" data-act="coach"><span class="menu-ico" style="background:#fff3d6">🧘</span><span><b>Skill Coach</b><span>Review every DBT skill and its video clip</span></span></button>
+          <button class="menu-btn" data-act="worksheets"><span class="menu-ico" style="background:#fffbea">📝</span><span><b>Worksheets</b><span>Practice every skill on paper — teens &amp; adults</span></span></button>
+          <button class="menu-btn" data-act="dilemmas"><span class="menu-ico" style="background:#eaf3ff">⚖️</span><span><b>Dialectical Dilemmas</b><span>Spot the both/and traps — and find the middle</span></span></button>
+          <button class="menu-btn" data-act="validation"><span class="menu-ico" style="background:#fff3f6">💗</span><span><b>Levels of Validation</b><span>Six ways to make someone feel truly understood</span></span></button>
+          <button class="menu-btn" data-act="games"><span class="menu-ico" style="background:#e6fff8">🎮</span><span><b>Games</b><span>Jeopardy, Bingo, matching games &amp; more</span></span></button>
         </div>
       </div>
     </div>`;
@@ -235,12 +395,12 @@ const UI = {
     const av = this.creator.avatar;
     if (!av) return;
     av.species = id;
-    if (id === 'human' || id === 'hero') {
+    if (id === 'human' || id === 'hero' || id === 'fairy' || id === 'vampire') {
       if (!av.skin) av.skin = 'medium';
       if (!av.hair) av.hair = 'straight';
       if (!av.eyes) av.eyes = 'brown';
     }
-    if (id === 'dragon' || id === 'ghost') av.shoes = 'none';
+    if (id === 'dragon' || id === 'ghost' || id === 'werewolf' || id === 'werelion' || id === 'schnauzer') av.shoes = 'none';
     if (id === 'robot' || id === 'alien') { if (!av.shoes) av.shoes = 'spaceboots'; }
     this.renderAll();
   },
@@ -248,8 +408,8 @@ const UI = {
   renderCreator() {
     const isCloset = this.view === 'closet';
     const av = this.creator.avatar || (this.creator.avatar = avatarFromPreset(PLAYER_PRESETS[0].avatar));
-    const humanoid = ['human', 'hero', 'wizard'].includes(av.species);
-    const hasShoes = !['dragon', 'ghost'].includes(av.species);
+    const humanoid = ['human', 'hero', 'wizard', 'fairy', 'vampire'].includes(av.species);
+    const hasShoes = !['dragon', 'ghost', 'werewolf', 'werelion', 'schnauzer'].includes(av.species);
     const sunglassesUnlocked = Engine.hasFeature('sunglasses');
     const title = isCloset ? 'Refine Your Look' : 'Create Your Character';
     const presetInfo = this.creator.presetId ? PLAYER_PRESETS.find(p => p.id === this.creator.presetId) : null;
@@ -340,7 +500,9 @@ const UI = {
     const { earned, total } = Engine.totalBadges();
     const unlockedFeatures = UNLOCK_FEATURES.filter(f => Engine.hasFeature(f.id)).length;
     const chips = UNLOCK_FEATURES.filter(f => Engine.hasFeature(f.id));
-    return `<div class="screen">
+    return `<div class="screen map-screen">
+      <div class="map-bg" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:linear-gradient(160deg,rgba(124,92,255,.12),rgba(52,209,191,.14))">${this.mapArt()}</div>
+      <div class="map-content">
       <div class="section-title"><h2>🗺️ Your Journey</h2></div>
       <div class="stats-grid">
         <div class="stat-card"><b>${earned}</b><span>Badges / ${total}</span></div>
@@ -351,6 +513,10 @@ const UI = {
       ${chips.length ? `<div class="scroll-x" style="margin-bottom:14px">${chips.map(c => `<span class="hud-chip gold" style="white-space:nowrap">${c.emoji} ${c.label} unlocked</span>`).join('')}</div>` : ''}
       <div class="tabbar">
         <button class="btn sm ghost" data-act="coach">🧘 Skill Coach</button>
+        <button class="btn sm ghost" data-act="worksheets">📝 Worksheets</button>
+        <button class="btn sm ghost" data-act="dilemmas">⚖️ Dilemmas</button>
+        <button class="btn sm ghost" data-act="validation">💗 Validation</button>
+        <button class="btn sm ghost" data-act="games">🎮 Games</button>
         <button class="btn sm ghost" data-act="badges">🏅 Badges</button>
         <button class="btn sm ghost" data-act="closet">🎨 Closet</button>
         <button class="btn sm rose" data-act="reset" style="margin-left:auto">↺ Reset Game</button>
@@ -377,7 +543,59 @@ const UI = {
         </div>
         <aside class="movie-tabs">${this.renderMovieTabs('orientation')}</aside>
       </div>
+      </div>
     </div>`;
+  },
+
+  /* Decorative translucent world-map backdrop for the journey screen */
+  mapArt() {
+    return `<svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="width:100%;height:100%;display:block">
+      <g fill="#7c5cff">
+        <path opacity="0.16" d="M-40 180 C60 60 200 40 300 90 C420 140 500 80 620 120 C760 170 900 110 1040 150 C1180 200 1320 180 1480 230 C1520 400 1440 520 1360 620 C1280 720 1180 660 1040 700 C900 740 820 820 680 780 C540 740 480 840 360 800 C240 760 160 860 60 800 C-40 740 -80 560 -40 400 Z"/>
+        <path opacity="0.10" d="M220 900 C260 780 420 760 520 820 C600 870 760 900 860 850 C960 800 1120 900 1240 880 C1330 864 1420 900 1500 900 L1500 940 L-60 940 Z"/>
+      </g>
+      <g>
+        <path stroke="#34d1bf" stroke-width="26" fill="none" opacity="0.20" stroke-linecap="round" d="M-20 640 C200 560 260 420 420 380 C600 340 640 240 820 220 C1000 200 1080 300 1220 260 C1360 220 1440 300 1490 280"/>
+        <path stroke="#34d1bf" stroke-width="9" fill="none" opacity="0.24" stroke-linecap="round" d="M-20 640 C200 560 260 420 420 380 C600 340 640 240 820 220 C1000 200 1080 300 1220 260 C1360 220 1440 300 1490 280"/>
+      </g>
+      <g fill="none" stroke-linecap="round">
+        <path stroke="#7c5cff" stroke-width="8" opacity="0.30" d="M-20 120 C220 160 320 320 520 360 C720 400 760 520 960 560 C1120 590 1260 700 1490 740"/>
+        <path stroke="#34d1bf" stroke-width="6" opacity="0.26" d="M180 -20 C200 160 420 220 500 400 C560 540 760 640 900 760 C980 830 1100 880 1210 920"/>
+      </g>
+      <path stroke="#ffb833" stroke-width="5" fill="none" opacity="0.5" stroke-linecap="round" stroke-dasharray="2 16" d="M40 760 C160 700 220 620 380 640 C540 660 600 520 760 540 C900 560 980 700 1140 680 C1280 660 1360 580 1420 520"/>
+      <g fill="#ff6b8a" stroke="#ff6b8a" stroke-width="4" opacity="0.6">
+        <path d="M40 700 L40 760 L98 730 Z"/>
+        <line x1="40" y1="760" x2="40" y2="790"/>
+      </g>
+      <g fill="#7c5cff" opacity="0.28">
+        <path d="M1020 240 L1070 140 L1120 240 Z"/>
+        <path d="M1090 250 L1145 160 L1200 250 Z"/>
+        <path d="M980 250 L1025 170 L1070 250 Z"/>
+        <path d="M1045 250 L1085 200 L1125 250 Z"/>
+      </g>
+      <g fill="#46c46e" opacity="0.26">
+        <circle cx="330" cy="200" r="16"/><circle cx="360" cy="230" r="12"/>
+        <circle cx="720" cy="150" r="14"/><circle cx="752" cy="176" r="11"/>
+        <circle cx="880" cy="640" r="15"/><circle cx="914" cy="668" r="10"/>
+        <circle cx="260" cy="620" r="13"/><circle cx="290" cy="648" r="10"/>
+        <circle cx="600" cy="120" r="12"/><circle cx="628" cy="145" r="9"/>
+      </g>
+      <g stroke="#ffb833" fill="none" opacity="0.5">
+        <circle cx="180" cy="130" r="34"/>
+        <circle cx="196" cy="114" r="24" fill="#ffb833" opacity="0.35"/>
+      </g>
+      <g stroke="#4aa8ff" fill="none" opacity="0.4">
+        <circle cx="1330" cy="100" r="46"/>
+        <path stroke-width="3" d="M1330 54 L1330 146 M1284 100 L1376 100 M1300 70 L1360 130 M1300 130 L1360 70"/>
+      </g>
+      <g fill="#ff6b8a" opacity="0.30">
+        <path d="M700 600 L700 560 L716 560 L716 600 Z"/>
+        <path d="M686 566 L708 542 L730 566 Z"/>
+        <path d="M730 580 L740 580 L740 600 L730 600 Z"/>
+        <path d="M748 520 L748 500 L756 500 L756 520 Z"/>
+        <path d="M704 500 L752 500 L752 516 L704 516 Z"/>
+      </g>
+    </svg>`;
   },
 
   /* ---------- movie page tabs (right sidebar) ---------- */
@@ -691,25 +909,294 @@ const UI = {
       <div class="coach-grid">
         ${DBT_MODULES.map(m => {
           const allBadged = m.skills.every(s => Engine.skillBadged(s.id));
+          const skills = m.skills.filter(s => s.id !== 'emotion-mind' && s.id !== 'reasonable-mind');
           return `<div class="module-card">
             <div class="module-head" style="background:${m.color}16">
               <div class="module-ico" style="background:${m.color}">${m.icon}</div>
               <div><h3>${m.name} ${allBadged ? '🏅' : ''}</h3><p>${m.motto}</p></div>
             </div>
             <div class="skill-list">
-              ${m.skills.map(s => {
+              ${m.id === 'mindfulness' ? `<div class="skill-item">
+                <div class="skill-name-row"><b>Mindfulness "What" and "How" skills</b><span class="skill-tag video">▶ DBT-RU</span></div>
+                <div class="skill-desc">The "What" skills — Observe, Describe, Participate — and the "How" skills — Non-judgmentally, One-Mindfully, Effectively.</div>
+                <div class="clip-video sm" style="margin-top:10px">${this.videoEmbed('PCJ0R6vAUnw')}</div>
+              </div>` : ''}
+              ${skills.map(s => {
                 const badged = Engine.skillBadged(s.id);
                 const prog = Math.min(Engine.state.proficiency[s.id] || 0, 2);
                 return `<div class="skill-item" data-act="modal-skill" data-skill="${s.id}">
                   <div class="skill-name-row"><b>${s.name}</b>${s.clip.youtubeId ? '<span class="skill-tag video">▶ DBT-RU</span>' : ''}${badged ? '<span class="skill-tag earned">🏅 ' + esc(s.badge) + '</span>' : '<span class="skill-tag">badge: ' + esc(s.badge) + '</span>'}</div>
                   <div class="skill-desc">${esc(s.short)}</div>
-                  ${s.clip.youtubeId ? `<div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(s.clip.youtubeId)}</div>` : ''}
+                  ${s.clip.youtubeId ? `<div class="clip-video sm" style="margin-top:10px"><div class="skill-name-row"><b>${esc(s.clip.title)}</b><span class="skill-tag video">▶ DBT-RU</span></div>${s.clip.desc ? `<p class="muted" style="margin:6px 0 0">${esc(s.clip.desc)}</p>` : ''}${this.videoEmbed(s.clip.youtubeId)}</div>` : ''}
+                  ${(s.extraClips || []).map(c => `<div class="clip-video sm" style="margin-top:10px"><div class="skill-name-row"><b>${esc(c.title)}</b><span class="skill-tag video">▶ Video</span></div>${c.desc ? `<p class="muted" style="margin:6px 0 0">${esc(c.desc)}</p>` : ''}${this.videoEmbed(c.youtubeId)}</div>`).join('')}
                   <div class="skill-progress progress-track sm" style="margin-top:10px"><div class="progress-fill" style="width:${prog / 2 * 100}%"></div></div>
                 </div>`;
               }).join('')}
             </div>
           </div>`;
         }).join('')}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- practice worksheets ---------- */
+  renderWorksheets() {
+    const isTeen = this.worksheetsAge !== 'adult';
+    const modules = DBT_MODULES.map(m => {
+      const items = m.skills.map(s => {
+        const w = WORKSHEETS[s.id];
+        if (!w) return '';
+        return `<div class="skill-item ws-sheet">
+          <div class="skill-name-row"><b>${esc(s.name)}</b><span class="skill-tag video">📝</span></div>
+          <div class="skill-desc" style="margin-top:4px">${esc(w.aim)}</div>
+          <ol class="ws-steps">
+            ${(w.steps || []).map(p => `<li>${esc(p)}<div class="ws-answer"></div></li>`).join('')}
+          </ol>
+          <div class="ws-scene">
+            <div class="ws-scene-head">Your turn — ${isTeen ? 'Adolescent' : 'Adult'}</div>
+            <p>${esc(isTeen ? w.sceneT : w.sceneA)}</p>
+            <div class="ws-lines"><div class="ws-line"></div><div class="ws-line"></div><div class="ws-line"></div></div>
+          </div>
+          <div class="ws-tip"><span>💡</span><span><b>Tip:</b> ${esc(w.tip)}</span></div>
+        </div>`;
+      }).join('');
+      return `<div class="module-card">
+        <div class="module-head" style="background:${m.color}16">
+          <div class="module-ico" style="background:${m.color}">${m.icon}</div>
+          <div><h3>${m.name}</h3><p>${esc(m.motto)}</p></div>
+        </div>
+        <div class="skill-list">${items}</div>
+      </div>`;
+    }).join('');
+    return `<div class="screen">
+      <div class="section-title"><button class="btn sm ghost back no-print" data-act="nav" data-to="map">← Map</button><h2>📝 Practice Worksheets</h2></div>
+      <div class="panel ws-header no-print" style="margin-bottom:16px">
+        <div class="ws-toggle">
+          <button class="ws-age ${isTeen ? 'sel' : ''}" data-act="ws-age" data-v="teen">🧒 Adolescent</button>
+          <button class="ws-age ${isTeen ? '' : 'sel'}" data-act="ws-age" data-v="adult">🧑 Adult</button>
+        </div>
+        <button class="btn gold" data-act="ws-print">🖨 Print worksheets</button>
+      </div>
+      <div class="ws-fields">
+        <div class="ws-field"><label>Name</label><div class="ws-line"></div></div>
+        <div class="ws-field"><label>Date</label><div class="ws-line"></div></div>
+        <div class="ws-field"><label>Skill I\'m practicing</label><div class="ws-line"></div></div>
+      </div>
+      <p class="muted" style="margin:12px 0 16px">One practice worksheet per skill — ${isTeen ? 'adolescent' : 'adult'} wording. Answer on paper or on screen, then print a clean copy.</p>
+      <div class="coach-grid print-area">${modules}</div>
+    </div>`;
+  },
+
+  /* ---------- dialectical dilemmas ---------- */
+  renderDilemmas() {
+    const groups = Object.keys(DILEMMA_GROUPS).map(gid => {
+      const g = DILEMMA_GROUPS[gid];
+      const items = DIALECTICAL_DILEMMAS.filter(d => d.category === gid);
+      return `<div class="module-head" style="margin-top:22px;background:${g.color}16;border-radius:var(--radius-lg)"><div class="module-ico" style="background:${g.color}">${g.emoji}</div><div><h3>${g.title}</h3><p>${esc(g.blurb)}</p></div></div>
+        <div class="coach-grid" style="margin-top:12px">${items.map(d => `<div class="module-card">
+          <div class="module-head" style="background:${g.color}16">
+            <div class="module-ico" style="background:${g.color}">${d.emoji}</div>
+            <div><h3>${esc(d.name)}</h3><p>${esc(d.desc)}</p></div>
+          </div>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-name-row"><b>${esc(d.name)} in action</b><span class="skill-tag video">▶ Video</span></div>
+              ${d.youtubeId ? `<div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(d.youtubeId)}</div>` : `<p class="muted" style="margin-top:10px">🎬 Video coming soon</p>`}
+            </div>
+          </div>
+        </div>`).join('')}</div>`;
+    }).join('');
+    return `<div class="screen">
+      <div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>⚖️ Dialectical Dilemmas</h2></div>
+      <p class="muted" style="margin-bottom:16px">DBT says the trap isn\'t picking a side — it\'s being stuck between two extremes that both feel right. Each dilemma is a both/and: two valid pulls, and wisdom in the middle.</p>
+      ${groups}
+    </div>`;
+  },
+
+  /* ---------- levels of validation ---------- */
+  renderValidation() {
+    return `<div class="screen">
+      <div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>💗 Levels of Validation</h2></div>
+      <p class="muted" style="margin-bottom:16px">Six ways to make someone feel truly understood — each one a step deeper into the same gift.</p>
+      <div class="coach-grid">
+        ${VALIDATION_LEVELS.map(v => `<div class="module-card">
+          <div class="module-head" style="background:#ff6b8a16">
+            <div class="module-ico" style="background:#ff6b8a">${v.emoji}</div>
+            <div><h3>${v.level}. ${esc(v.name)}</h3><p>${esc(v.desc)}</p></div>
+          </div>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-name-row"><b>Level ${v.level}: ${esc(v.name)}</b><span class="skill-tag video">▶ Video</span></div>
+              ${v.youtubeId ? `<div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(v.youtubeId)}</div>` : `<p class="muted" style="margin-top:10px">🎬 Video coming soon</p>`}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- games hub ---------- */
+  renderGames() {
+    return `<div class="screen">
+      <div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🎮 Games</h2></div>
+      <p class="muted" style="margin-bottom:16px">Play your way through DBT — a growing set of games that turn skills practice into fun.</p>
+      <div class="coach-grid">
+        ${GAMES.map(g => `<div class="module-card">
+          <div class="module-head" style="background:#34d1bf16">
+            <div class="module-ico" style="background:#34d1bf">${g.emoji}</div>
+            <div><h3>${esc(g.name)}</h3><p>${esc(g.desc)}</p></div>
+          </div>
+          <div class="skill-list">
+            <div class="skill-item">
+              <div class="skill-name-row"><b>${esc(g.name)}</b><span class="skill-tag video">🎲</span></div>
+              ${g.status === 'soon' ? `<p class="muted" style="margin-top:10px">🛠️ In the works — coming soon</p>` : `<button class="btn teal" style="margin-top:10px" data-act="play-game" data-id="${esc(g.id)}">▶ Play ${esc(g.name)}</button>`}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- jeopardy game ---------- */
+  playGame(id) {
+    if (id === 'jeopardy') {
+      if (!this.jeopardy) this.jeopardyReset();
+      this.show('jeopardy');
+      return;
+    }
+    this.toast('🛠️ That game is in the works — coming soon.', '');
+  },
+
+  jeopardyBoard() {
+    const id = this.jeopardy && this.jeopardy.boardId;
+    return JEOPARDY_BOARDS.find(b => b.id === id) || JEOPARDY_BOARDS[0];
+  },
+
+  jeopardyReset() {
+    this.jeopardy = {
+      boardId: this.jeopardy ? this.jeopardy.boardId : JEOPARDY_BOARDS[0].id,
+      score: 0, played: {}, sel: null, picking: false
+    };
+  },
+
+  jeopardySelectBoard(id) {
+    this.jeopardy = { boardId: id, score: 0, played: {}, sel: null, picking: false };
+    this.renderAll();
+  },
+
+  jeopardyShowBoards() {
+    if (!this.jeopardy) this.jeopardyReset();
+    this.jeopardy.picking = true;
+    this.jeopardy.sel = null;
+    this.renderAll();
+  },
+
+  jeopardySelect(cat, i) {
+    const key = cat + '-' + i;
+    if (this.jeopardy.played[key]) return;
+    this.jeopardy.sel = { cat: +cat, i: +i, revealed: false };
+    this.renderAll();
+  },
+
+  jeopardyReveal() {
+    if (this.jeopardy.sel) this.jeopardy.sel.revealed = true;
+    this.renderAll();
+  },
+
+  jeopardyScore(correct) {
+    const s = this.jeopardy.sel;
+    if (s && !this.jeopardy.played[s.cat + '-' + s.i]) {
+      this.jeopardy.played[s.cat + '-' + s.i] = true;
+      if (correct) {
+        const b = this.jeopardyBoard();
+        const c = b.categories[s.cat].clues[s.i];
+        this.jeopardy.score += c.v;
+        this.sound('correct');
+      }
+    }
+    this.jeopardy.sel = null;
+    this.renderAll();
+  },
+
+  jeopardyRestart() {
+    this.jeopardyReset();
+    this.renderAll();
+  },
+
+  renderJeopardy() {
+    const g = this.jeopardy || (this.jeopardyReset(), this.jeopardy);
+    if (g.picking || !g.boardId) return this.renderJeopardyBoards();
+    const b = this.jeopardyBoard();
+    const sel = g.sel;
+    const total = b.categories.reduce((n, c) => n + c.clues.length, 0);
+    const played = Object.keys(g.played).length;
+    const done = played === total;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🔔 ${esc(b.title)}</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score.toLocaleString()}</b><span>Score</span></div>
+        <div class="stat-card"><b>${played}/${total}</b><span>Clues played</span></div>
+        <div class="stat-card"><b>${done ? '🏁 Game over' : 'Keep going'}</b><span>${done ? 'Great round!' : 'Pick a clue'}</span></div>
+      </div>`;
+    if (done) {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🎉 Board cleared!</h3>
+          <p class="muted">Final score: <b>${g.score.toLocaleString()}</b></p>
+          <button class="btn teal" data-act="jeopardy-restart" style="margin-top:10px">↺ Play Again</button>
+          <button class="btn ghost" data-act="jeopardy-boards" style="margin-top:8px">📚 Switch Board</button>
+        </div>
+      </div>`;
+    }
+    if (sel) {
+      const cat = b.categories[sel.cat];
+      const clue = cat.clues[sel.i];
+      return `<div class="screen">${top}
+        <div class="panel" style="margin-top:14px;text-align:center">
+          <span class="skill-tag video" style="margin:0 auto 10px">${cat.emoji} ${esc(cat.name)} · ${clue.v}</span>
+          <h3 style="font-size:1.35rem;line-height:1.5;min-height:96px;display:flex;align-items:center;justify-content:center">${esc(clue.q)}</h3>
+          ${sel.revealed
+            ? `<div style="margin-top:16px"><p class="muted">Answer:</p><h3 style="color:var(--teal, #0f9d8a)">${esc(clue.a)}</h3></div>
+               <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                 <button class="btn teal" data-act="jeopardy-got">✅ I got it · +${clue.v}</button>
+                 <button class="btn ghost" data-act="jeopardy-miss">❌ Missed it</button>
+               </div>`
+            : `<button class="btn gold" style="margin-top:16px" data-act="jeopardy-reveal">👀 Reveal Answer</button>`}
+        </div>
+      </div>`;
+    }
+    return `<div class="screen">${top}
+      <p class="muted" style="margin:10px 0 16px">${esc(b.tagline)}</p>
+      <div class="jeopardy-board">
+        ${b.categories.map((c, ci) => `<div class="jeopardy-col">
+          <div class="jeopardy-cat">${c.emoji} ${esc(c.name)}</div>
+          ${c.clues.map((cl, i) => {
+            const key = ci + '-' + i;
+            const used = g.played[key];
+            return `<button class="jeopardy-cell ${used ? 'done' : ''}" data-act="jeopardy-clue" data-cat="${ci}" data-i="${i}" ${used ? 'disabled' : ''}>${used ? '✓' : cl.v}</button>`;
+          }).join('')}
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn ghost sm" data-act="jeopardy-boards" style="margin-top:12px">📚 Switch Board</button>
+        <button class="btn ghost sm" data-act="jeopardy-restart" style="margin-top:12px">↺ Restart Board</button>
+      </div>
+    </div>`;
+  },
+
+  renderJeopardyBoards() {
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🔔 DBT Jeopardy</h2></div>
+      <p class="muted" style="margin:10px 0 16px">Pick a board to play. Each board is a full 5×5 round from the group\'s DBT Jeopardy PowerPoints.</p>`;
+    return `<div class="screen">${top}
+      <div class="coach-grid">
+        ${JEOPARDY_BOARDS.map(b => `<button class="module-card" data-act="jeopardy-board" data-id="${b.id}" style="text-align:left;cursor:pointer">
+          <div class="module-head" style="background:#6b7cff16">
+            <div class="module-ico" style="background:#6b7cff">🔔</div>
+            <div><h3>${esc(b.title)}</h3><p>${esc(b.tagline)}</p></div>
+          </div>
+          <div class="skill-list" style="padding:8px 14px 12px">
+            ${b.categories.map(c => `<span class="skill-tag video" style="margin:3px 3px 0 0;display:inline-block">${c.emoji} ${esc(c.name)}</span>`).join('')}
+          </div>
+        </button>`).join('')}
       </div>
     </div>`;
   },
@@ -935,6 +1422,7 @@ const UI = {
     const root = document.getElementById('modal-root');
     root.innerHTML = `<div class="modal-backdrop"><div class="modal"><button class="modal-close" data-act="modal-close">✕</button>${html}</div></div>`;
     root.querySelector('.modal-backdrop').addEventListener('click', e => { if (e.target === e.currentTarget) this.closeModal(); });
+    this.initVideoFallbacks(root);
   },
 
   closeModal() {
@@ -997,7 +1485,61 @@ const UI = {
   },
 
   videoEmbed(id) {
-    return `<iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${esc(id)}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+    return `<iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/${esc(id)}" data-vid="${esc(id)}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  },
+
+  /* -------- embed-failure fallback (owner disabled embedding, region blocks, etc.) -------- */
+  loadYTAPI() {
+    if ((window.YT && window.YT.Player) || this._ytApiPromise) return this._ytApiPromise;
+    this._ytApiPromise = new Promise(resolve => {
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { if (typeof prev === 'function') prev(); resolve(); };
+      const s = document.createElement('script');
+      s.src = 'https://www.youtube.com/iframe_api';
+      s.async = true;
+      document.body.appendChild(s);
+    });
+    return this._ytApiPromise;
+  },
+
+  videoFallbackHTML(vid) {
+    return `<div class="clip-fallback">
+      <span class="clip-fallback-icon">🎬</span>
+      <p class="clip-fallback-text">This video can't play embedded — its owner has turned off embedding (or it's not available here).</p>
+      <a class="btn sm ghost" href="https://www.youtube.com/watch?v=${esc(vid)}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+    </div>`;
+  },
+
+  initVideoFallbacks(root) {
+    try {
+      if (!root || !root.querySelectorAll) return;
+      const frames = root.querySelectorAll('iframe[data-vid]');
+      if (!frames.length) return;
+      const self = this;
+      this.loadYTAPI().then(() => {
+        frames.forEach(f => {
+          const box = f.parentNode;
+          if (!box || !box.classList || box.classList.contains('ytplayer-replaced')) return;
+          box.classList.add('ytplayer-replaced');
+          try {
+            new (window.YT.Player)(f, {
+              width: '100%',
+              height: '100%',
+              videoId: f.dataset.vid,
+              playerVars: { playsinline: 1 },
+              events: {
+                onError: e => {
+                  const codes = [2, 5, 100, 101, 150];
+                  if (codes.indexOf(e.data) !== -1) {
+                    try { box.innerHTML = self.videoFallbackHTML(f.dataset.vid); } catch (err) {}
+                  }
+                }
+              }
+            });
+          } catch (err) {}
+        });
+      });
+    } catch (e) {}
   },
 
   toast(msg, type) {
@@ -1032,6 +1574,283 @@ const UI = {
       this.closeModal();
       this.creator = { name: '', gender: 'they', avatar: null, presetId: null };
       this.show('title');
+    }
+  }
+};
+
+/* ---------- procedural soundscape generators ----------
+   Each start(ctx, out) builds Web Audio nodes into the shared master
+   `out` gain and returns { nodes, timers }. Timers schedule random
+   micro-events (drops, chimes, crackles…) so nothing ever loops flat. */
+const SOUNDSCAPES = {
+  ocean: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 500; f.Q.value = 0.4;
+      const g = ctx.createGain(); g.gain.value = 0.18;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
+      const lg = ctx.createGain(); lg.gain.value = 0.15;
+      src.connect(f); f.connect(g); g.connect(out);
+      lfo.connect(lg); lg.connect(g.gain);
+      src.start(); lfo.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        const t = ctx.currentTime;
+        lfo.frequency.setValueAtTime(0.05 + Math.random() * 0.06, t);
+        lg.gain.setValueAtTime(0.10 + Math.random() * 0.10, t);
+      }, 8000));
+      return { nodes: [src, f, g, lfo, lg], timers };
+    }
+  },
+
+  rain: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1100;
+      const g = ctx.createGain(); g.gain.value = 0.07;
+      src.connect(f); f.connect(g); g.connect(out); src.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.3) return;
+        const t = ctx.currentTime;
+        const d = ctx.createBufferSource(); d.buffer = noise; d.playbackRate.value = 0.8 + Math.random() * 1.6;
+        const df = ctx.createBiquadFilter(); df.type = 'bandpass';
+        df.frequency.setValueAtTime(900 + Math.random() * 2600, t); df.Q.value = 6;
+        const dg = ctx.createGain();
+        dg.gain.setValueAtTime(0.16, t);
+        dg.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+        d.connect(df); df.connect(dg); dg.connect(out);
+        d.start(t, Math.random()); d.stop(t + 0.09);
+      }, 150));
+      return { nodes: [src, f, g], timers };
+    }
+  },
+
+  river: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 620; f.Q.value = 1.2;
+      const g = ctx.createGain(); g.gain.value = 0.12;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.45;
+      const lg = ctx.createGain(); lg.gain.value = 240;
+      src.connect(f); f.connect(g); g.connect(out);
+      lfo.connect(lg); lg.connect(f.frequency);
+      src.start(); lfo.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.12) return;
+        const t = ctx.currentTime;
+        const d = ctx.createBufferSource(); d.buffer = noise; d.playbackRate.value = 0.7 + Math.random() * 1.6;
+        const df = ctx.createBiquadFilter(); df.type = 'bandpass';
+        df.frequency.setValueAtTime(700 + Math.random() * 1400, t); df.Q.value = 4;
+        const dg = ctx.createGain();
+        dg.gain.setValueAtTime(0.001, t);
+        dg.gain.exponentialRampToValueAtTime(0.12, t + 0.08);
+        dg.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+        d.connect(df); df.connect(dg); dg.connect(out);
+        d.start(t, Math.random()); d.stop(t + 0.4);
+      }, 400));
+      return { nodes: [src, f, g, lfo, lg], timers };
+    }
+  },
+
+  wind: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 420; f.Q.value = 0.7;
+      const g = ctx.createGain(); g.gain.value = 0.13;
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.14;
+      const lg = ctx.createGain(); lg.gain.value = 140;
+      src.connect(f); f.connect(g); g.connect(out);
+      lfo.connect(lg); lg.connect(f.frequency);
+      src.start(); lfo.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        const t = ctx.currentTime;
+        const gust = 0.4 + Math.random() * 1.3;
+        g.gain.cancelScheduledValues(t);
+        g.gain.setTargetAtTime(0.20 * gust, t, 1.6);
+        f.frequency.setTargetAtTime(260 + Math.random() * 380, t, 1.8);
+        setTimeout(() => {
+          try {
+            g.gain.setTargetAtTime(0.12, ctx.currentTime, 2.2);
+            f.frequency.setTargetAtTime(420, ctx.currentTime, 2.4);
+          } catch (e) {}
+        }, 4200);
+      }, 8200));
+      return { nodes: [src, f, g, lfo, lg], timers };
+    }
+  },
+
+  campfire: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 220;
+      const g = ctx.createGain(); g.gain.value = 0.10;
+      src.connect(f); f.connect(g); g.connect(out); src.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.4) return;
+        const t = ctx.currentTime;
+        const d = ctx.createBufferSource(); d.buffer = noise; d.playbackRate.value = 0.6 + Math.random() * 2;
+        const df = ctx.createBiquadFilter(); df.type = 'bandpass';
+        df.frequency.setValueAtTime(500 + Math.random() * 2000, t); df.Q.value = 3;
+        const dg = ctx.createGain();
+        dg.gain.setValueAtTime(0.18 + Math.random() * 0.12, t);
+        dg.gain.exponentialRampToValueAtTime(0.001, t + 0.05 + Math.random() * 0.06);
+        d.connect(df); df.connect(dg); dg.connect(out);
+        d.start(t, Math.random()); d.stop(t + 0.15);
+      }, 110));
+      return { nodes: [src, f, g], timers };
+    }
+  },
+
+  crickets: {
+    start(ctx, out) {
+      const noise = UI.mkNoise(ctx);
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
+      const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 3200;
+      const g = ctx.createGain(); g.gain.value = 0.02;
+      src.connect(f); f.connect(g); g.connect(out); src.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.35) return;
+        const t = ctx.currentTime;
+        const base = 4100 + Math.random() * 700;
+        const pulses = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < pulses; i++) {
+          const o = ctx.createOscillator(); o.type = 'triangle';
+          const og = ctx.createGain();
+          const p0 = t + i * 0.16;
+          o.frequency.setValueAtTime(base + Math.random() * 120, p0);
+          og.gain.setValueAtTime(0.001, p0);
+          og.gain.exponentialRampToValueAtTime(0.05, p0 + 0.015);
+          og.gain.exponentialRampToValueAtTime(0.001, p0 + 0.05);
+          o.connect(og); og.connect(out);
+          o.start(p0); o.stop(p0 + 0.06);
+        }
+      }, 620));
+      return { nodes: [src, f, g], timers };
+    }
+  },
+
+  chimes: {
+    start(ctx, out) {
+      const notes = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7];
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.16) return;
+        const t = ctx.currentTime;
+        const f0 = notes[Math.floor(Math.random() * notes.length)];
+        const partials = [[f0, 1], [f0 * 2.01, 0.28], [f0 * 4.02, 0.07]];
+        partials.forEach(p => {
+          const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = p[0];
+          const og = ctx.createGain();
+          og.gain.setValueAtTime(0.001, t);
+          og.gain.exponentialRampToValueAtTime(0.10 * p[1], t + 0.02);
+          og.gain.exponentialRampToValueAtTime(0.001, t + 2.6 + Math.random() * 1.4);
+          o.connect(og); og.connect(out);
+          o.start(t); o.stop(t + 4.2);
+        });
+      }, 340));
+      return { nodes: [], timers };
+    }
+  },
+
+  musicbox: {
+    start(ctx, out) {
+      const seq = [0, 1, 2, 4, 5, 7, 5, 4, 2, 1, 2, 4, 3, 2, 1, 0];
+      const steps = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.7, 1318.5];
+      let idx = 0;
+      const playNote = i => {
+        const t = ctx.currentTime;
+        const f0 = steps[i];
+        const partials = [[f0, 1], [f0 * 3.01, 0.22]];
+        partials.forEach(p => {
+          const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = p[0];
+          const og = ctx.createGain();
+          og.gain.setValueAtTime(0.001, t);
+          og.gain.exponentialRampToValueAtTime(0.085 * p[1], t + 0.01);
+          og.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+          o.connect(og); og.connect(out);
+          o.start(t); o.stop(t + 1.7);
+        });
+      };
+      playNote(seq[0]);
+      const timers = [];
+      timers.push(setInterval(() => {
+        idx = (idx + 1) % seq.length;
+        if (Math.random() > 0.24) playNote(seq[idx]);
+      }, 1250));
+      return { nodes: [], timers };
+    }
+  },
+
+  ethereal: {
+    start(ctx, out) {
+      const chords = [
+        [130.81, 196, 329.63],
+        [110, 164.81, 261.63],
+        [130.81, 174.61, 261.63],
+        [146.83, 196, 293.66]
+      ];
+      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1500; f.Q.value = 0.6;
+      f.connect(out);
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.05;
+      const lg = ctx.createGain(); lg.gain.value = 500;
+      lfo.connect(lg); lg.connect(f.frequency);
+      lfo.start();
+      const voices = chords[0].map((fr, vi) => {
+        const o = ctx.createOscillator(); o.type = 'triangle';
+        o.frequency.setValueAtTime(fr, ctx.currentTime);
+        o.detune.setValueAtTime(vi === 0 ? -4 : vi === 1 ? 3 : 6, ctx.currentTime);
+        const g = ctx.createGain(); g.gain.value = 0.05;
+        o.connect(g); g.connect(f);
+        o.start();
+        return { o, g };
+      });
+      let ci = 0;
+      const timers = [];
+      timers.push(setInterval(() => {
+        const t = ctx.currentTime;
+        ci = (ci + 1) % chords.length;
+        voices.forEach((v, i) => v.o.frequency.setTargetAtTime(chords[ci][i], t, 1.8));
+      }, 9000));
+      return { nodes: [f, lfo, lg].concat(voices.map(v => v.o)), timers };
+    }
+  },
+
+  starlight: {
+    start(ctx, out) {
+      const d1 = ctx.createOscillator(); d1.type = 'sine'; d1.frequency.value = 55;
+      const g1 = ctx.createGain(); g1.gain.value = 0.05;
+      d1.connect(g1); g1.connect(out); d1.start();
+      const d2 = ctx.createOscillator(); d2.type = 'sine'; d2.frequency.value = 110; d2.detune.value = 3;
+      const g2 = ctx.createGain(); g2.gain.value = 0.03;
+      d2.connect(g2); g2.connect(out); d2.start();
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 0.03;
+      const lg = ctx.createGain(); lg.gain.value = 0.02;
+      lfo.connect(lg); lg.connect(g1.gain);
+      lfo.start();
+      const timers = [];
+      timers.push(setInterval(() => {
+        if (Math.random() > 0.28) return;
+        const t = ctx.currentTime;
+        const o = ctx.createOscillator(); o.type = 'sine';
+        o.frequency.setValueAtTime(700 + Math.random() * 1100, t);
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(0.001, t);
+        og.gain.linearRampToValueAtTime(0.028, t + 0.5);
+        og.gain.exponentialRampToValueAtTime(0.001, t + 3.6);
+        o.connect(og); og.connect(out);
+        o.start(t); o.stop(t + 4);
+      }, 2400));
+      return { nodes: [d1, d2, g1, g2, lfo, lg], timers };
     }
   }
 };

@@ -57,7 +57,12 @@ const SPECIES_COLORS = {
   wizard: { skin: '#f3c6a5' },
   alien:  { body: '#6ab04c', dark: '#4d8436', spot: '#3e6b2b', eye: '#20242e' },
   ghost:  { body: '#e8ecf5', dark: '#a9b6cc', blush: '#d8c9ee', glow: '#7a5ce0' },
-  hero:   { skin: '#e6b487' }
+  hero:   { skin: '#e6b487' },
+  fairy:    { wing: '#b5d9f2', wingDark: '#7fb7de', glow: '#ffd76a' },
+  werewolf: { fur: '#8a97a3', furDark: '#5f6a75', muzzle: '#d4dae0', nose: '#2b2f36', inner: '#d8a9a9' },
+  werelion: { fur: '#d9a441', furDark: '#a5782a', mane: '#b8860b', muzzle: '#eecb7a', nose: '#5a4632' },
+  vampire:  { cape: '#2a2038', capeL: '#4a3a66' },
+  schnauzer:{ fur: '#8f9aa8', furDark: '#6b7686', muzzle: '#c6ced6', beard: '#b9c2cb', nose: '#2f343b' }
 };
 
 const HAIR_BACK = { afro: 1, curly: 1, locs: 1, braids: 1, long: 1, ponytail: 1, braidhalo: 1 };
@@ -119,6 +124,18 @@ function renderAvatar(av) {
   const id = beginRender(av);
   const g = [];
   if (av.species === 'hero') g.push(`<path d="M40 40 Q96 196 20 210 Q54 156 44 40 Z" fill="#3f6fd4" opacity="0.9"/><path d="M40 40 Q60 120 42 200 Q46 150 46 40 Z" fill="#345fd0" opacity="0.5"/>`);
+  if (av.species === 'fairy') {
+    const fw = SPECIES_COLORS.fairy;
+    g.push(`<path d="M54 116 Q12 96 24 50 Q54 56 68 98 Z" fill="${fw.wing}" opacity="0.9"/><path d="M66 100 Q40 86 48 62 Q62 72 66 90 Z" fill="#ffffff" opacity="0.5"/>`);
+    g.push(`<path d="M146 116 Q188 96 176 50 Q146 56 132 98 Z" fill="${fw.wingDark}" opacity="0.9"/><path d="M134 100 Q160 86 152 62 Q138 72 134 90 Z" fill="#ffffff" opacity="0.5"/>`);
+  }
+  if (av.species === 'vampire') {
+    const vc = SPECIES_COLORS.vampire;
+    g.push(`<path d="M58 116 Q42 150 40 202 L48 212 Q70 190 76 148 Z" fill="${vc.cape}" opacity="0.96"/>`);
+    g.push(`<path d="M142 116 Q158 150 160 202 L152 212 Q130 190 124 148 Z" fill="${shade(vc.cape, -8)}" opacity="0.96"/>`);
+    g.push(`<path d="M58 116 Q100 96 142 116 L140 124 Q100 108 60 124 Z" fill="${vc.cape}" opacity="0.92"/>`);
+    g.push(`<path d="M58 116 Q52 148 50 200" stroke="${vc.capeL}" stroke-width="3" fill="none"/>`);
+  }
   svgHairBack(av, g);
   svgBody(av, g);
   svgHead(av, g);
@@ -205,6 +222,19 @@ function svgBody(av, g) {
     g.push(`<path d="M100 150 l10 16 -10 8 -10 -8 Z" fill="#ffd76a"/>`);
     g.push(`<path d="M96 158 h8 v7 h-8 z" fill="#e24a4a"/>`);
   }
+  if (species === 'werewolf' || species === 'werelion' || species === 'schnauzer') {
+    const col = SPECIES_COLORS[species];
+    if (species === 'werewolf' || species === 'schnauzer') {
+      g.push(`<path d="M120 148 Q142 138 148 152 Q150 164 142 170 Q138 160 126 156 Z" fill="${col.furDark}"/>`);
+    } else {
+      g.push(`<path d="M120 150 Q140 142 146 154 Q150 168 142 172 Q138 160 126 158 Z" fill="${col.fur}"/>`);
+      g.push(`<circle cx="144" cy="166" r="5" fill="${col.furDark}"/>`);
+    }
+    svgTorso(av, g, o);
+    svgArms(av, g, o);
+    svgAnimalLegs(g, col);
+    return;
+  }
   svgTorso(av, g, o);
   svgArms(av, g, o);
   if (species === 'robot') {
@@ -214,6 +244,18 @@ function svgBody(av, g) {
   }
   svgLegs(av, g, o);
   svgShoes(av, g);
+}
+
+function svgAnimalLegs(g, col) {
+  g.push(`<rect x="80" y="196" width="17" height="26" rx="7" fill="${col.fur}"/>`);
+  g.push(`<rect x="80" y="196" width="6" height="26" rx="3" fill="${lighten(col.fur, 16)}" opacity="0.5"/>`);
+  g.push(`<rect x="103" y="196" width="17" height="26" rx="7" fill="${col.fur}"/>`);
+  g.push(`<rect x="114" y="196" width="6" height="26" rx="3" fill="${shade(col.fur, -14)}" opacity="0.5"/>`);
+  g.push(`<ellipse cx="88" cy="228" rx="11" ry="8" fill="${col.fur}"/>`);
+  g.push(`<ellipse cx="112" cy="228" rx="11" ry="8" fill="${col.fur}"/>`);
+  g.push(`<path d="M83 230 Q88 225 93 230" stroke="${col.furDark}" stroke-width="1.6" fill="none" opacity="0.8"/>`);
+  g.push(`<path d="M107 230 Q112 225 117 230" stroke="${col.furDark}" stroke-width="1.6" fill="none" opacity="0.8"/>`);
+  g.push(`<path d="M84 236 L92 236 M108 236 L116 236" stroke="${col.furDark}" stroke-width="2" opacity="0.5"/>`);
 }
 
 function svgTorso(av, g, o) {
@@ -304,7 +346,9 @@ function svgArms(av, g, o) {
   const dress = species === 'human' && isDress(av.outfit);
   const armLen = dress ? 66 : 62;
   const handY = dress ? 186 : 182;
-  const skin2 = species === 'dragon' ? SPECIES_COLORS.dragon.body : skin;
+  const animalFur = ['werewolf', 'werelion', 'schnauzer'].includes(species) ? SPECIES_COLORS[species].fur : null;
+  const handFill = animalFur || `url(#${R.id}-skin)`;
+  const skin2 = animalFur || (species === 'dragon' ? SPECIES_COLORS.dragon.body : skin);
   const sgrad = `url(#${R.id}-sleeve)`;
   // left arm
   g.push(`<rect x="58" y="120" width="13" height="${armLen}" rx="6.5" fill="${sgrad}"/>`);
@@ -313,7 +357,7 @@ function svgArms(av, g, o) {
     g.push(`<circle cx="64.5" cy="148" r="5" fill="${SPECIES_COLORS.robot.joint}"/>`);
     g.push(`<rect x="58" y="${handY}" width="13" height="10" rx="5" fill="${SPECIES_COLORS.robot.dark}"/>`);
   } else {
-    g.push(`<circle cx="64.5" cy="${handY + 8}" r="7.5" fill="url(#${R.id}-skin)"/>`);
+    g.push(`<circle cx="64.5" cy="${handY + 8}" r="7.5" fill="${handFill}"/>`);
     g.push(`<circle cx="62.5" cy="${handY + 5}" r="2.4" fill="#ffffff" opacity="0.5"/>`);
     g.push(`<path d="M61 ${handY + 8} Q62 ${handY + 4} 64 ${handY + 5}" stroke="${shade(skin2, -40)}" stroke-width="1.6" fill="none" opacity="0.5"/>`);
   }
@@ -324,7 +368,7 @@ function svgArms(av, g, o) {
     g.push(`<circle cx="135.5" cy="148" r="5" fill="${SPECIES_COLORS.robot.joint}"/>`);
     g.push(`<rect x="129" y="${handY}" width="13" height="10" rx="5" fill="${SPECIES_COLORS.robot.dark}"/>`);
   } else {
-    g.push(`<circle cx="135.5" cy="${handY + 8}" r="7.5" fill="url(#${R.id}-skin)"/>`);
+    g.push(`<circle cx="135.5" cy="${handY + 8}" r="7.5" fill="${handFill}"/>`);
     g.push(`<circle cx="133.5" cy="${handY + 5}" r="2.4" fill="#ffffff" opacity="0.5"/>`);
     g.push(`<path d="M132 ${handY + 8} Q134 ${handY + 4} 136 ${handY + 5}" stroke="${shade(skin2, -40)}" stroke-width="1.6" fill="none" opacity="0.5"/>`);
   }
@@ -347,7 +391,7 @@ function svgLegs(av, g, o) {
 
 function svgShoes(av, g) {
   const species = av.species;
-  if (species === 'ghost' || species === 'dragon') return;
+  if (species === 'ghost' || species === 'dragon' || species === 'werewolf' || species === 'werelion' || species === 'schnauzer') return;
   const sh = AV.shoes(av);
   const sgrad = `url(#${R.id}-shoe)`;
   g.push(`<path d="M76 228 Q76 220 82 220 L98 220 Q102 220 102 226 L102 232 Q102 236 98 236 L80 236 Q76 236 76 228 Z" fill="${sgrad}"/>`);
@@ -417,6 +461,72 @@ function svgHead(av, g) {
       for (let i = 0; i < 5; i++) g.push(`<path d="M52 60 Q48 48 54 34" stroke="${SPECIES_COLORS.dragon.scale}" stroke-width="1.6" fill="none" opacity="0.6"/>`);
       return;
     }
+    case 'fairy': {
+      celShade(g, 100, 82, 38, 41, 'skin');
+      g.push(`<path d="M62 82 L44 92 L60 100 Z" fill="url(#${R.id}-skin)"/>`);
+      g.push(`<path d="M138 82 L156 92 L140 100 Z" fill="url(#${R.id}-skin)"/>`);
+      g.push(`<path d="M58 88 L50 91 L58 95 Z" fill="${shade(skin, -40)}" opacity="0.4"/>`);
+      g.push(`<path d="M142 88 L150 91 L142 95 Z" fill="${shade(skin, -40)}" opacity="0.4"/>`);
+      g.push(`<circle cx="100" cy="28" r="3.5" fill="${SPECIES_COLORS.fairy.glow}"/><circle cx="86" cy="20" r="2" fill="${SPECIES_COLORS.fairy.glow}" opacity="0.8"/><circle cx="114" cy="22" r="2" fill="${SPECIES_COLORS.fairy.glow}" opacity="0.8"/>`);
+      return;
+    }
+    case 'vampire': {
+      celShade(g, 100, 82, 38, 41, 'skin');
+      g.push(`<path d="M62 82 L44 92 L60 100 Z" fill="url(#${R.id}-skin)"/>`);
+      g.push(`<path d="M138 82 L156 92 L140 100 Z" fill="url(#${R.id}-skin)"/>`);
+      return;
+    }
+    case 'werewolf': {
+      const wf = SPECIES_COLORS.werewolf;
+      g.push(`<ellipse cx="100" cy="80" rx="40" ry="42" fill="${wf.fur}"/>`);
+      g.push(`<ellipse cx="86" cy="60" rx="20" ry="16" fill="#ffffff" opacity="0.16"/>`);
+      g.push(`<path d="M68 52 L56 18 L90 40 Z" fill="${wf.fur}"/>`);
+      g.push(`<path d="M132 52 L144 18 L110 40 Z" fill="${wf.furDark}"/>`);
+      g.push(`<path d="M70 46 L61 26 L82 40 Z" fill="${wf.inner}"/>`);
+      g.push(`<path d="M130 46 L139 26 L118 40 Z" fill="${wf.inner}"/>`);
+      g.push(`<path d="M62 92 Q52 108 62 118 Q67 110 68 100 Z" fill="${wf.furDark}"/>`);
+      g.push(`<path d="M138 92 Q148 108 138 118 Q133 110 132 100 Z" fill="${wf.furDark}"/>`);
+      g.push(`<ellipse cx="100" cy="102" rx="21" ry="17" fill="${wf.muzzle}"/>`);
+      g.push(`<path d="M86 94 L86 104 Q86 110 92 110 L108 110 Q114 110 114 104 L114 94 Q100 88 86 94 Z" fill="${wf.nose}"/>`);
+      g.push(`<ellipse cx="84" cy="80" rx="8" ry="9" fill="#20242e"/><ellipse cx="116" cy="80" rx="8" ry="9" fill="#20242e"/>`);
+      g.push(`<circle cx="86" cy="78" r="3" fill="#ffd76a"/><circle cx="118" cy="78" r="3" fill="#ffd76a"/>`);
+      g.push(`<path d="M94 92 Q100 96 106 92" stroke="${wf.nose}" stroke-width="2" fill="none" opacity="0.7"/>`);
+      return;
+    }
+    case 'werelion': {
+      const wl = SPECIES_COLORS.werelion;
+      g.push(`<circle cx="100" cy="78" r="46" fill="${wl.mane}"/>`);
+      g.push(`<circle cx="100" cy="76" r="40" fill="${shade(wl.mane, 14)}"/>`);
+      for (let i = 0; i < 12; i++) g.push(`<path d="M${60 + (i % 6) * 8} ${38 + i * 4} l5 5" stroke="${wl.furDark}" stroke-width="2.5" fill="none" opacity="0.4"/>`);
+      g.push(`<ellipse cx="100" cy="80" rx="34" ry="38" fill="${wl.fur}"/>`);
+      g.push(`<ellipse cx="88" cy="62" rx="16" ry="13" fill="#ffffff" opacity="0.16"/>`);
+      g.push(`<ellipse cx="70" cy="50" rx="7" ry="9" fill="${wl.furDark}"/><ellipse cx="130" cy="50" rx="7" ry="9" fill="${wl.furDark}"/>`);
+      g.push(`<ellipse cx="70" cy="50" rx="3.5" ry="5" fill="#d8a9a9"/><ellipse cx="130" cy="50" rx="3.5" ry="5" fill="#d8a9a9"/>`);
+      g.push(`<ellipse cx="86" cy="80" rx="7" ry="8" fill="#20242e"/><ellipse cx="114" cy="80" rx="7" ry="8" fill="#20242e"/>`);
+      g.push(`<circle cx="88" cy="78" r="2.8" fill="#ffd76a"/><circle cx="116" cy="78" r="2.8" fill="#ffd76a"/>`);
+      g.push(`<ellipse cx="100" cy="102" rx="18" ry="15" fill="${wl.muzzle}"/>`);
+      g.push(`<path d="M90 94 L90 104 Q90 109 95 109 L105 109 Q110 109 110 104 L110 94 Q100 89 90 94 Z" fill="${wl.nose}"/>`);
+      g.push(`<path d="M80 104 Q74 110 66 106" stroke="${wl.furDark}" stroke-width="2" fill="none"/><path d="M120 104 Q126 110 134 106" stroke="${wl.furDark}" stroke-width="2" fill="none"/>`);
+      return;
+    }
+    case 'schnauzer': {
+      const sn = SPECIES_COLORS.schnauzer;
+      g.push(`<ellipse cx="100" cy="80" rx="38" ry="42" fill="${sn.fur}"/>`);
+      g.push(`<ellipse cx="88" cy="62" rx="18" ry="14" fill="#ffffff" opacity="0.16"/>`);
+      g.push(`<path d="M66 56 Q54 62 58 90 Q62 78 72 74 Z" fill="${sn.furDark}"/>`);
+      g.push(`<path d="M134 56 Q146 62 142 90 Q138 78 128 74 Z" fill="${sn.furDark}"/>`);
+      g.push(`<path d="M74 70 Q82 64 90 70" stroke="${sn.beard}" stroke-width="5" fill="none" stroke-linecap="round"/>`);
+      g.push(`<path d="M110 70 Q118 64 126 70" stroke="${sn.beard}" stroke-width="5" fill="none" stroke-linecap="round"/>`);
+      g.push(`<circle cx="82" cy="80" r="6" fill="#20242e"/><circle cx="118" cy="80" r="6" fill="#20242e"/>`);
+      g.push(`<circle cx="84" cy="78" r="2" fill="#fff"/><circle cx="120" cy="78" r="2" fill="#fff"/>`);
+      g.push(`<ellipse cx="100" cy="102" rx="17" ry="15" fill="${sn.beard}"/>`);
+      g.push(`<ellipse cx="100" cy="100" rx="12" ry="10" fill="${sn.muzzle}"/>`);
+      g.push(`<ellipse cx="100" cy="96" rx="7" ry="5" fill="${sn.nose}"/>`);
+      g.push(`<path d="M96 108 Q100 116 104 108 L106 118 L94 118 Z" fill="${sn.beard}"/>`);
+      g.push(`<path d="M88 108 Q84 120 90 124 Q96 120 96 108" fill="${sn.beard}"/>`);
+      g.push(`<path d="M112 108 Q116 120 110 124 Q104 120 104 108" fill="${sn.beard}"/>`);
+      return;
+    }
     case 'wizard': {
       celShade(g, 100, 80, 38, 40, 'skin');
       g.push(`<path d="M64 96 Q58 120 64 128 Q74 124 76 98" fill="${SPECIES_COLORS.wizard.skin}"/>`);
@@ -449,7 +559,7 @@ function svgHead(av, g) {
 
 /* ================= FRONT HAIR ================= */
 function svgHairFront(av, g) {
-  if (['robot', 'alien', 'ghost', 'dragon'].includes(av.species)) return;
+  if (['robot', 'alien', 'ghost', 'dragon', 'werewolf', 'werelion', 'schnauzer'].includes(av.species)) return;
   const hair = AV.hair(av);
   const hg = hairGrad();
   const h = av.hair || 'straight';
@@ -535,7 +645,7 @@ function eyeShape(g, cx, flip, eye) {
 }
 
 function svgHumanFeatures(av, g) {
-  if (['robot', 'alien', 'ghost', 'dragon'].includes(av.species)) return;
+  if (['robot', 'alien', 'ghost', 'dragon', 'werewolf', 'werelion', 'schnauzer'].includes(av.species)) return;
   const eye = AV.eye(av);
   const skin = AV.skin(av);
   const hair = AV.hair(av);
@@ -576,6 +686,11 @@ function svgHumanFeatures(av, g) {
   if (av.species === 'wizard') {
     g.push(`<path d="M88 108 Q100 126 112 108 L108 128 L92 128 Z" fill="#e9ecf2"/>`);
     g.push(`<path d="M90 114 Q100 122 110 114" stroke="#c9d2dc" stroke-width="2" fill="none" opacity="0.7"/>`);
+  }
+  // vampire fangs
+  if (av.species === 'vampire') {
+    g.push(`<path d="M95 103 L97 113 L100 103 Z" fill="#ffffff"/>`);
+    g.push(`<path d="M100 103 L103 113 L105 103 Z" fill="#ffffff"/>`);
   }
 }
 
