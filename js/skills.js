@@ -1778,7 +1778,22 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Unrelenting Crisis vs. Inhibited Grieving',
     emoji: '🌊',
     desc: 'One crisis piles onto the next with no room to grieve — the losses never get felt, so buried pain keeps fueling new emergencies. The dialectic: tend to the pain underneath so it stops running the show.',
-    youtubeId: ''
+    explain: {
+      what: 'The person lives in one emergency after another, so there\'s never a pause to feel the losses that keep piling up. Because the grief never gets processed, it quietly fuels the next crisis.',
+      poles: [
+        'Unrelenting Crisis — every day is a new brushfire. Conflicts, impulsive reactions, and urgent problems demand attention, so there is no room to stop and feel.',
+        'Inhibited Grieving — the pain underneath is never felt or named. Losses get dismissed, avoided, or "handled" with distraction, so the grief stays frozen and unprocessed.'
+      ],
+      trap: 'The crises become the distraction from the grief, and the grief feeds the next crisis — a loop that keeps both running and leaves the real loss never mourned.',
+      dialectic: 'Tend to the pain underneath so it stops running the show. You can handle what is in front of you AND make room to grieve what was lost. Processing the loss shrinks the crisis machine.',
+      ask: 'What loss have I been too busy to feel — and what might change if I gave it ten minutes tonight?'
+    },
+    youtubeId: '',
+    clips: [
+      { label: '📚 Educational', title: 'Circumventing Emotional Avoidance', desc: 'TEDx talk with Michelle Maidenberg — how we sidestep painful feelings, and why avoidance only makes them louder.', youtubeId: 'Rq2ytRXX-J8' },
+      { label: '🎬 Frozen — Inhibited Grieving', title: 'Do You Want to Build a Snowman?', desc: 'Years of "conceal, don\'t feel": Elsa shuts out Anna and suppresses her grief instead of feeling it.', youtubeId: 'V-zXT5bIBM0' },
+      { label: '🎬 Frozen — The Breaking Point', title: 'Elsa Flees From Arendelle', desc: 'The buried grief erupts — the fountain freezes and the winter spreads as Elsa flees the palace.', youtubeId: 'AiX-WvMNDPc' }
+    ]
   },
   {
     id: 'emotional-vulnerability-vs-self-invalidation',
@@ -1786,6 +1801,16 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Emotional Vulnerability vs. Self-Invalidation',
     emoji: '💜',
     desc: 'Feeling everything intensely, then telling yourself you\'re weak, dramatic, or wrong for feeling it. The dialectic: your feelings are real AND you can learn to ride them.',
+    explain: {
+      what: 'Feeling everything intensely, then telling yourself you are weak, dramatic, or wrong for feeling it. The vulnerability is real — and so is the harsh inner judge that turns on it.',
+      poles: [
+        'Emotional Vulnerability — emotions come fast, strong, and long. You feel everything deeply, get hurt easily, and the wave is hard to ride.',
+        'Self-Invalidation — you then attack yourself for feeling: "I\'m too much," "stop being dramatic." Your own experience gets told it does not count.'
+      ],
+      trap: 'The self-invalidation piles shame on top of the pain, which makes the feelings even bigger — and the bigger feelings make the self-attack louder. Each pole feeds the other.',
+      dialectic: 'Your feelings are real AND you can learn to ride them. Validate the emotion without obeying it: "Of course I feel this — and I can handle it."',
+      ask: 'When did I last call my own feeling "too much" — and what would it sound like to validate it instead?'
+    },
     youtubeId: ''
   },
   {
@@ -1794,6 +1819,16 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Active Passivity vs. Apparent Competence',
     emoji: '🎭',
     desc: 'Looking fully capable and put-together, then suddenly passive and helpless, expecting others to step in. The dialectic: you can ask for help AND you\'re able to handle things yourself.',
+    explain: {
+      what: 'Looking fully capable and put together on the outside while feeling helpless and expecting others to step in — a switch between "I have got this" and "you have to fix it."',
+      poles: [
+        'Apparent Competence — you appear confident, skilled, and fine, so people expect a lot and never see the struggle underneath.',
+        'Active Passivity — then you go passive and helpless, expecting others to solve it, sometimes without even asking for help out loud.'
+      ],
+      trap: 'Because you look so capable, no one offers help until you collapse — and the collapse makes you feel worse about not coping. The people around you get whiplash between the two extremes.',
+      dialectic: 'You can ask for help AND you are able to handle things yourself. Competence is not ruined by asking, and asking is not a failure of competence.',
+      ask: 'What am I looking fine about right now that I am actually struggling with — and who could I honestly tell?'
+    },
     youtubeId: ''
   },
   {
@@ -1802,6 +1837,16 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Too Permissive vs. Too Authoritarian',
     emoji: '⚖️',
     desc: 'Strict rules that shut feelings down, or no limits at all — and the fight between them. The dialectic: hold firm limits AND stay warm and flexible.',
+    explain: {
+      what: 'A fight between strict rules that shut feelings down and no limits at all — and the seesaw between them when the other extreme fails.',
+      poles: [
+        'Too Permissive — no limits, no follow-through, anything goes. Everyone gets to feel heard, but no one feels safe or guided.',
+        'Too Authoritarian — rigid rules and harsh consequences, feelings dismissed. There is order, but connection and trust get crushed.'
+      ],
+      trap: 'When one extreme fails, families swing to the other: strict, then guilty and permissive, then strict again. The swing itself — not either pole — is what erodes trust.',
+      dialectic: 'Hold firm limits AND stay warm and flexible. Limits without warmth are control; warmth without limits is chaos. The middle keeps both.',
+      ask: 'Which extreme am I leaning into right now — and what would "firm AND warm" look like this week?'
+    },
     youtubeId: ''
   },
   {
@@ -1810,6 +1855,16 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Normalizing vs. Pathologizing',
     emoji: '🩺',
     desc: 'Dismissing intense behavior as "just a phase" vs. labeling every feeling a disorder. The dialectic: see the behavior as both understandable AND worth changing.',
+    explain: {
+      what: 'Dismissing intense behavior as "just a phase" vs. labeling every feeling a disorder. Either way, the real struggle gets missed — minimized on one side, pathologized on the other.',
+      poles: [
+        'Normalizing — "everyone feels this way, it is nothing." The behavior gets waved off as a phase, so the pain is never really addressed.',
+        'Pathologizing — "something is wrong with you." Every feeling becomes a diagnosis, and the person starts to feel like the problem itself.'
+      ],
+      trap: 'Normalizing says "no problem here," and pathologizing says "you are broken." Neither can see the behavior as understandable AND changeable — so help either never comes or lands as judgment.',
+      dialectic: 'The behavior is both understandable AND worth changing. It makes sense given the person\'s story — and skills can still help them write the next chapter.',
+      ask: 'Am I treating this as "not a real problem" or as "this person is broken" — and what would the middle sound like?'
+    },
     youtubeId: ''
   },
   {
@@ -1818,6 +1873,16 @@ const DIALECTICAL_DILEMMAS = [
     name: 'Forcing Autonomy vs. Forcing Dependence',
     emoji: '🪁',
     desc: 'Pushing someone to be independent before they\'re ready vs. keeping them dependent so they never learn. The dialectic: encourage independence while staying close.',
+    explain: {
+      what: 'Pushing someone to be independent before they are ready vs. keeping them dependent so they never learn. Either way, growth does not happen at their own pace.',
+      poles: [
+        'Forcing Autonomy — "figure it out yourself." Support gets withdrawn too early, before the skills underneath are actually built.',
+        'Forcing Dependence — "you cannot do it without me." Support is never withdrawn, so the skills are never practiced and confidence never forms.'
+      ],
+      trap: 'Push too hard and they crash into tasks they were not ready for; hold too tight and they never get to practice. Both stop growth — they just fail in different directions.',
+      dialectic: 'Encourage independence while staying close. Offer support that gradually steps back, so confidence builds on a safe base instead of in a vacuum.',
+      ask: 'Am I holding on too tight or letting go too fast — and what is the next tiny step that does a bit of both?'
+    },
     youtubeId: ''
   }
 ];
@@ -1844,42 +1909,48 @@ const VALIDATION_LEVELS = [
     name: 'Being Present',
     emoji: '🧘',
     desc: 'Pay full attention — put the phone down, look at them, and really listen without trying to fix anything yet.',
-    youtubeId: ''
+    edu: { title: 'TEDx: How to actively listen to others (Scott Pierce)', youtubeId: 'Yq5pJ0q3xuc' },
+    movie: { title: 'It\'s Not About the Nail — she just wants to be listened to, not fixed', youtubeId: '-4EDhdAHrOg' }
   },
   {
     level: 2,
     name: 'Accurate Reflection',
     emoji: '🪞',
     desc: 'Reflect back what you heard, plainly: "So you\'re saying it hurt because they forgot, again." No spin, no advice — just accurate listening.',
-    youtubeId: ''
+    edu: { title: 'Reflective Listening (Tim Corey)', youtubeId: 'N7nR74ZyaR8' },
+    movie: { title: 'Everybody Loves Raymond — active listening in action', youtubeId: '4VOubVB4CTU' }
   },
   {
     level: 3,
     name: 'Reading the Unspoken',
     emoji: '🔍',
     desc: 'Guess at what hasn\'t been said yet — "I wonder if you\'re also feeling embarrassed" — and let them correct you without it being a test.',
-    youtubeId: ''
+    edu: { title: 'TED-Ed: Can machines read your emotions?', youtubeId: 'QFk3e5PcK7s' },
+    movie: { title: 'The Last of Us S2 — Gail reads the unspoken guilt Joel is hiding', youtubeId: 'qCG_210plGA' }
   },
   {
     level: 4,
     name: 'Validating by History',
     emoji: '📜',
     desc: 'Make sense of the reaction given the past: "Given what happened last time, of course your guard went up." Behavior becomes understandable, not weird.',
-    youtubeId: ''
+    edu: { title: 'Psychotherapy Academy: Six Levels of Validation in DBT', youtubeId: '49Blk3eR5C8' },
+    movie: { title: 'Up — Ellie\'s note validates the whole history they shared', youtubeId: 'gVY04LBXaCc' }
   },
   {
     level: 5,
     name: 'Normalizing',
     emoji: '🌍',
     desc: 'Show the feeling is human: "Anyone would feel that way — that\'s a completely normal response." It names the shared, universal part.',
-    youtubeId: ''
+    edu: { title: 'Therapist looks at the empathy in Inside Out', youtubeId: '9Xd__JqsHWU' },
+    movie: { title: 'Inside Out — Sadness validates Bing Bong\'s grief', youtubeId: 'RPQRHemfk9E' }
   },
   {
     level: 6,
     name: 'Radical Genuineness',
     emoji: '💞',
     desc: 'Drop the therapist voice and be real — match their intensity, speak as a fellow person, and let them know you\'re truly in it with them.',
-    youtubeId: ''
+    edu: { title: 'Counseling Center Group: 6 Levels of Validation', youtubeId: 'aUbpqCgkPxk' },
+    movie: { title: 'Good Will Hunting — "It\'s Not Your Fault"', youtubeId: 'ZQht2yOX9Js' }
   }
 ];
 

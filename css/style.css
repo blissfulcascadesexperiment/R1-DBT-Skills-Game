@@ -468,6 +468,23 @@ footer { text-align: center; color: var(--ink-soft); font-size: .78rem; padding:
 .confetti-piece { position: fixed; width: 10px; height: 16px; z-index: 300; pointer-events: none; animation: confFall linear forwards; }
 @keyframes confFall { to { transform: translateY(110vh) rotate(720deg); opacity: .2; } }
 
+/* ---------- Dialectical dilemma explainers ---------- */
+.dilemma-explain { display: grid; gap: 10px; }
+.dilemma-sec b { display: block; color: var(--primary-dark); font-family: 'Baloo 2', sans-serif; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; }
+.dilemma-sec p { font-size: .9rem; line-height: 1.55; color: var(--ink-soft); margin-top: 2px; }
+.dilemma-sec.dialectic { background: #eefbf8; border: 2px solid #bfe9e1; border-radius: 12px; padding: 10px 12px; }
+.dilemma-sec.dialectic b { color: #0a6a5a; }
+.dilemma-sec.dialectic p { color: #0a6a5a; }
+.dilemma-sec.ask { background: #f5f3ff; border: 2px solid #dcd3ff; border-radius: 12px; padding: 10px 12px; }
+.dilemma-sec.ask b { color: #4a3ba8; }
+.dilemma-sec.ask p { color: #4a3ba8; }
+.dilemma-poles { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: stretch; }
+.pole { border: 2px solid #ece9f6; border-radius: 12px; padding: 10px 12px; background: #fcfbff; }
+.pole-tag { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--primary); margin-bottom: 4px; }
+.pole p { font-size: .85rem; line-height: 1.5; color: var(--ink-soft); }
+.pole-gap { display: grid; place-items: center; color: var(--primary); font-weight: 800; }
+@media (max-width: 560px) { .dilemma-poles { grid-template-columns: 1fr; } .pole-gap { transform: rotate(90deg); } }
+
 /* ---------- Practice worksheets ---------- */
 .ws-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
 .ws-toggle { display: inline-flex; gap: 8px; flex-wrap: wrap; }

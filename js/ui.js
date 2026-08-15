@@ -1000,8 +1000,22 @@ const UI = {
           </div>
           <div class="skill-list">
             <div class="skill-item">
-              <div class="skill-name-row"><b>${esc(d.name)} in action</b><span class="skill-tag video">▶ Video</span></div>
-              ${d.youtubeId ? `<div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(d.youtubeId)}</div>` : `<p class="muted" style="margin-top:10px">🎬 Video coming soon</p>`}
+              ${d.explain ? `<div class="dilemma-explain">
+                <div class="dilemma-sec"><b>The dilemma</b><p>${esc(d.explain.what)}</p></div>
+                <div class="dilemma-poles">
+                  ${d.explain.poles.map((p, i) => `<div class="pole"><span class="pole-tag">${i === 0 ? 'One side' : 'The other side'}</span><p>${esc(p)}</p></div>`).join('<div class="pole-gap">↔</div>')}
+                </div>
+                <div class="dilemma-sec"><b>Why it\'s a trap</b><p>${esc(d.explain.trap)}</p></div>
+                <div class="dilemma-sec dialectic"><b>The dialectic</b><p>${esc(d.explain.dialectic)}</p></div>
+                <div class="dilemma-sec ask"><b>Ask yourself</b><p>${esc(d.explain.ask)}</p></div>
+              </div>` : ''}
+              ${(() => {
+                const list = d.clips && d.clips.length ? d.clips : (d.youtubeId ? [{ label: 'See it in action', title: d.name, desc: '', youtubeId: d.youtubeId }] : []);
+                if (!list.length) return `<div class="skill-name-row" style="margin-top:14px"><b>See it in action</b><span class="skill-tag video">▶ Video</span></div><p class="muted" style="margin-top:10px">🎬 Video coming soon</p>`;
+                return list.map(c => `<div class="skill-name-row" style="margin-top:14px"><b>${esc(c.label)}</b><span class="skill-tag video">▶ Watch</span></div>
+                  ${c.title ? `<p class="muted" style="margin:6px 0 0">${esc(c.title)}${c.desc ? ' — ' + esc(c.desc) : ''}</p>` : ''}
+                  <div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(c.youtubeId)}</div>`).join('');
+              })()}
             </div>
           </div>
         </div>`).join('')}</div>`;
@@ -1025,10 +1039,18 @@ const UI = {
             <div><h3>${v.level}. ${esc(v.name)}</h3><p>${esc(v.desc)}</p></div>
           </div>
           <div class="skill-list">
-            <div class="skill-item">
-              <div class="skill-name-row"><b>Level ${v.level}: ${esc(v.name)}</b><span class="skill-tag video">▶ Video</span></div>
-              ${v.youtubeId ? `<div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(v.youtubeId)}</div>` : `<p class="muted" style="margin-top:10px">🎬 Video coming soon</p>`}
-            </div>
+            ${['edu', 'movie'].map(kind => {
+              const vv = v[kind];
+              const label = kind === 'edu' ? '📚 Learn it' : '🎬 See it in film';
+              if (!vv || !vv.youtubeId) return `<div class="skill-item">
+                <div class="skill-name-row"><b>${label}</b><span class="skill-tag video">▶ Video</span></div>
+                <p class="muted" style="margin-top:10px">🎬 Video coming soon</p>
+              </div>`;
+              return `<div class="skill-item">
+                <div class="skill-name-row"><b>${label}: ${esc(vv.title)}</b><span class="skill-tag video">▶ Video</span></div>
+                <div class="clip-video sm" style="margin-top:10px">${this.videoEmbed(vv.youtubeId)}</div>
+              </div>`;
+            }).join('')}
           </div>
         </div>`).join('')}
       </div>
@@ -1051,6 +1073,7 @@ const UI = {
               <div class="skill-name-row"><b>${esc(g.name)}</b><span class="skill-tag video">🎲</span></div>
               ${g.status === 'soon' ? `<p class="muted" style="margin-top:10px">🛠️ In the works — coming soon</p>` : `<button class="btn teal" style="margin-top:10px" data-act="play-game" data-id="${esc(g.id)}">▶ Play ${esc(g.name)}</button>`}
             </div>
+          </div>
           </div>
         </div>`).join('')}
       </div>
