@@ -1171,9 +1171,9 @@ const MOVIE_ILLUSTRATIONS = [
     heading: 'Emotion Mind',
     title: 'Finding Nemo — "Nemo\'s First Day at School"',
     movie: 'Finding Nemo (2003)',
-    clipDesc: 'Marlin is emotion mind at full volume: at the school drop-off his fear floods everything. He catastrophizes, overreacts to a perfectly normal moment, and his anxiety distorts the facts — the school is safe and the teacher is calm, but his mood re-writes the whole scene as a disaster.',
-    youtubeId: 'cpZ_zG9fJhw',
-    linkUrl: 'https://www.youtube.com/watch?v=cpZ_zG9fJhw'
+    clipDesc: 'Marlin is emotion mind at full volume from the first wake-up: Nemo tumbles into a coral and he panics, re-checks his stripes, delays the trip, and makes him brush again. One perfectly ordinary morning becomes a gauntlet of dangers — his anxiety distorts the facts, and the reef stays safe while his mood re-writes it as a disaster.',
+    youtubeId: 'eWXOurnVTYg',
+    linkUrl: 'https://www.youtube.com/watch?v=eWXOurnVTYg'
   },
   {
     skillId: 'reasonable-mind',
@@ -1229,8 +1229,8 @@ const MOVIE_ILLUSTRATIONS = [
     title: 'Geri\'s Game',
     movie: 'Geri\'s Game (Pixar)',
     clipDesc: 'An old man plays chess against himself — losing himself completely in the game, moment by moment. A playful example of participating wholeheartedly in the present.',
-    youtubeId: 't3tMS3b-EFQ',
-    linkUrl: 'https://www.youtube.com/watch?v=t3tMS3b-EFQ'
+    youtubeId: 'dMnUuKr88XU',
+    linkUrl: 'https://www.youtube.com/watch?v=dMnUuKr88XU'
   },
   {
     skillId: 'non-judgmental',
@@ -1811,7 +1811,10 @@ const DIALECTICAL_DILEMMAS = [
       dialectic: 'Your feelings are real AND you can learn to ride them. Validate the emotion without obeying it: "Of course I feel this — and I can handle it."',
       ask: 'When did I last call my own feeling "too much" — and what would it sound like to validate it instead?'
     },
-    youtubeId: ''
+    clips: [
+      { label: '📚 Educational', title: 'Self-Validation and Self-Respect', desc: 'DBT & Me Podcast, Episode 35 — directly teaches how to validate your own feelings, and why self-respect starts there.', youtubeId: 'KNYPwpatylY' },
+      { label: '🎬 Inside Out 2 — Self-Invalidation', title: 'i\'m not good enough', desc: 'Anxiety tells Riley she isn\'t good enough — she attacks her own experience instead of trusting it.', youtubeId: 'ufafqubus9o' }
+    ]
   },
   {
     id: 'active-passivity-vs-apparent-competence',
@@ -1847,7 +1850,10 @@ const DIALECTICAL_DILEMMAS = [
       dialectic: 'Hold firm limits AND stay warm and flexible. Limits without warmth are control; warmth without limits is chaos. The middle keeps both.',
       ask: 'Which extreme am I leaning into right now — and what would "firm AND warm" look like this week?'
     },
-    youtubeId: ''
+    clips: [
+      { label: '📚 Educational', title: '5 Parenting Styles and Their Effects on Life', desc: 'Sprouts walks through permissive, authoritarian, authoritative, and more — the spectrum this dilemma swings across.', youtubeId: 'fyO8pvpnTdE' },
+      { label: '🎬 Mrs. Doubtfire — Too Permissive', title: 'The Birthday Party Scene', desc: 'Daniel\'s no-limits parenting: the chaotic party spirals into a cake disaster.', youtubeId: 'IwmLo82iRhA' }
+    ]
   },
   {
     id: 'normalizing-vs-pathologizing',
@@ -1974,16 +1980,174 @@ const GAMES = [
     id: 'skills-matching',
     name: 'Skills Matching',
     emoji: '🧩',
-    desc: 'Match each tricky situation to the skill that fits — the fastest to clear the board wins.',
-    status: 'soon'
+    desc: 'Place each DBT skill where it fits in the Model of Emotions — clear the board to win.',
+    status: 'live'
   },
   {
     id: 'skill-charades',
     name: 'Skill Charades',
     emoji: '🎭',
-    desc: 'Act out a DBT skill without words, and let everyone else guess which one you\'re showing.',
-    status: 'soon'
+    desc: 'Act it out, no words! Mime skills, emotions, and coping moves from a shuffled 50-card deck.',
+    status: 'live'
+  },
+  {
+    id: 'skill-scramble',
+    name: 'Skill Scramble',
+    emoji: '🔤',
+    desc: 'Unscramble the letters to name the DBT skill before you run out of letters.',
+    status: 'live'
+  },
+  {
+    id: 'word-search',
+    name: 'DBT Word Search',
+    emoji: '🔍',
+    desc: 'Drag across the grid to find DBT skills hiding in a sea of letters.',
+    status: 'live'
+  },
+  {
+    id: 'crossword',
+    name: 'DBT Crossword',
+    emoji: '🧩',
+    desc: 'Every clue is a DBT skill or idea — fill the grid and clear the board.',
+    status: 'live'
   }
+];
+
+/* ---- Skill Scramble word pool: one token per skill, with a hint to make the guess learnable. ---- */
+const SCRAMBLE_WORDS = [
+  { word: 'OBSERVE', label: 'Observe', module: 'Mindfulness', clue: 'Just notice what is happening right now — like watching clouds go by.' },
+  { word: 'DESCRIBE', label: 'Describe', module: 'Mindfulness', clue: 'Put words to what you notice — the facts first, before the story.' },
+  { word: 'PARTICIPATE', label: 'Participate', module: 'Mindfulness', clue: 'Throw yourself fully into the moment, not watching from the sidelines.' },
+  { word: 'WISEMIND', label: 'Wise Mind', module: 'Mindfulness', clue: 'Where reasonable mind and emotion mind meet, balanced.' },
+  { word: 'REASONABLE', label: 'Reasonable Mind', module: 'Mindfulness', clue: 'Cool, logical, fact-driven — but it can leave the human layer out.' },
+  { word: 'EMOTIONMIND', label: 'Emotion Mind', module: 'Mindfulness', clue: 'The feeling runs the whole show — facts get blurred by the mood.' },
+  { word: 'TIPP', label: 'TIPP', module: 'Distress Tolerance', clue: 'Temperature, Intense exercise, Paced breathing, Paired muscle relaxation.' },
+  { word: 'ACCEPTS', label: 'ACCEPTS', module: 'Distress Tolerance', clue: 'Activities, Contributing, Comparisons... the distract-with-wise-mind acronym.' },
+  { word: 'IMPROVE', label: 'IMPROVE', module: 'Distress Tolerance', clue: 'Imagery, Meaning, Prayer, Relaxation... improve the moment.' },
+  { word: 'SELFSOOTHE', label: 'Self-Soothe', module: 'Distress Tolerance', clue: 'Calm each of your five senses — sight, sound, touch, taste, smell.' },
+  { word: 'RADICALACCEPTANCE', label: 'Radical Acceptance', module: 'Distress Tolerance', clue: 'Opening to reality as it is — not approving of it, accepting what is true.' },
+  { word: 'PLEASE', label: 'PLEASE', module: 'Emotion Regulation', clue: 'treat Physical illness, Eat balanced, Avoid drugs, Sleep, Exercise.' },
+  { word: 'OPPOSITEACTION', label: 'Opposite Action', module: 'Emotion Regulation', clue: 'Do the opposite of what the emotion is urging you to do.' },
+  { word: 'CHECKTHEFACTS', label: 'Check the Facts', module: 'Emotion Regulation', clue: 'Ask whether the intensity of your emotion actually fits the facts.' },
+  { word: 'RIDINGTHEWAVE', label: 'Riding the Wave', module: 'Emotion Regulation', clue: 'Let the emotion rise, peak, and pass without fighting or acting on it.' },
+  { word: 'DEARMAN', label: 'DEAR MAN', module: 'Interpersonal Effectiveness', clue: 'Describe, Express, Assert, Reinforce, stay Mindful, Appear confident, Negotiate.' },
+  { word: 'GIVE', label: 'GIVE', module: 'Interpersonal Effectiveness', clue: 'Keep relationships warm: Gentle, Interested, Validate, Easy manner.' },
+  { word: 'FAST', label: 'FAST', module: 'Interpersonal Effectiveness', clue: 'Keep self-respect: be Fair, no over-Apologies, Stick to values, be Truthful.' },
+  { word: 'VALIDATE', label: 'Validate', module: 'Interpersonal Effectiveness', clue: 'Make sense of someone\'s experience — understanding is not the same as agreeing.' },
+  { word: 'EFFECTIVENESS', label: 'Effectiveness', module: 'Interpersonal Effectiveness', clue: 'Do what works — let go of being right and keep your goal in sight.' }
+];
+
+/* ---- DBT Word Search word pool: compact single-token skill names. ---- */
+const WORDSEARCH_WORDS = [
+  { word: 'OBSERVE', label: 'Observe' },
+  { word: 'DESCRIBE', label: 'Describe' },
+  { word: 'PARTICIPATE', label: 'Participate' },
+  { word: 'WISEMIND', label: 'Wise Mind' },
+  { word: 'TIPP', label: 'TIPP' },
+  { word: 'ACCEPTS', label: 'ACCEPTS' },
+  { word: 'IMPROVE', label: 'IMPROVE' },
+  { word: 'PLEASE', label: 'PLEASE' },
+  { word: 'GIVE', label: 'GIVE' },
+  { word: 'FAST', label: 'FAST' },
+  { word: 'VALIDATE', label: 'Validate' },
+  { word: 'OPPOSITE', label: 'Opposite Action' },
+  { word: 'REASONABLE', label: 'Reasonable Mind' },
+  { word: 'EMOTION', label: 'Emotion Mind' },
+  { word: 'CHAIN', label: 'Chain Analysis' },
+  { word: 'SELFSOOTHE', label: 'Self-Soothe' }
+];
+
+/* ---- DBT Crossword clues. Each answer is a single uppercase token; placement decides across/down. ---- */
+const CROSSWORD_CLUES = [
+  { answer: 'OBSERVE', clue: 'Just notice what is happening right now, no words needed.' },
+  { answer: 'DESCRIBE', clue: 'Put words to what you notice — facts, not the story.' },
+  { answer: 'WISEMIND', clue: 'The balanced place where reasonable mind and emotion mind meet.' },
+  { answer: 'EMOTIONMIND', clue: 'The state where the feeling runs the whole show.' },
+  { answer: 'REASONABLE', clue: 'Cool, logical, fact-driven — missing the human layer.' },
+  { answer: 'PARTICIPATE', clue: 'Throw yourself fully into the moment.' },
+  { answer: 'TIPP', clue: 'Temperature, Intense exercise, Paced breathing, Paired muscle.' },
+  { answer: 'ACCEPTS', clue: 'Activities, Contributing, Comparisons, Emotions, Pushing away, Thoughts, Sensations.' },
+  { answer: 'IMPROVE', clue: 'Imagery, Meaning, Prayer, Relaxation, One thing at a time, Vacation, Encouragement.' },
+  { answer: 'SELFSOOTHE', clue: 'Calm your five senses — sight, sound, touch, taste, smell.' },
+  { answer: 'RADICAL', clue: 'Accepting reality as it is — not approving of it.' },
+  { answer: 'PLEASE', clue: 'treat Physical illness, Eat, Avoid drugs, Sleep, Exercise.' },
+  { answer: 'OPPOSITE', clue: 'Do the opposite of what the emotion urges.' },
+  { answer: 'CHECK', clue: '_____ the facts: does the emotion fit what actually happened?' },
+  { answer: 'DEARMAN', clue: 'Describe, Express, Assert, Reinforce, Mindful, Appear confident, Negotiate.' },
+  { answer: 'GIVE', clue: 'Gentle, Interested, Validate, Easy manner — keeps relationships warm.' },
+  { answer: 'FAST', clue: 'Fair, no over-Apologies, Stick to values, Truthful — keeps self-respect.' },
+  { answer: 'VALIDATE', clue: 'Make sense of someone\'s feelings without agreeing with them.' },
+  { answer: 'CHAIN', clue: 'Map a behavior link by link to find the link you can change.' },
+  { answer: 'EFFECTIVE', clue: 'Do what works — the DBT "How" skill.' }
+];
+
+/* ---- Skills Matching: where each skill fits in the Model of Emotions.
+   `skill` is the matching DBT_SKILLS id; slots render top-to-bottom as the model flows. ---- */
+const MODEL_OF_EMOTIONS = [
+  { part: 'Vulnerability', desc: 'What makes you more likely to react — tired, hungry, stressed, sick, alone.', skill: 'abc-please', skillName: 'PLEASE' },
+  { part: 'Prompting Event', desc: 'What started it — the situation or trigger you notice.', skill: 'observe', skillName: 'Observe' },
+  { part: 'Interpretation (Thoughts)', desc: 'How you interpret what happened — the story you tell yourself about it.', skill: 'check-facts', skillName: 'Check the Facts' },
+  { part: 'Body Changes', desc: 'How your body reacts — racing heart, tight chest, heat, trembling.', skill: 'tipp', skillName: 'TIPP' },
+  { part: 'Expression', desc: 'How you show the emotion — face, body, and words to the people around you.', skill: 'dearman', skillName: 'DEAR MAN' },
+  { part: 'Action Urges', desc: 'What the emotion makes you want to do — approach, escape, attack.', skill: 'opposite-action', skillName: 'Opposite Action' },
+  { part: 'The Emotion', desc: 'The feeling itself — the wave that rises, peaks, and passes.', skill: 'riding-the-wave', skillName: 'Riding the Wave' },
+  { part: 'Aftereffects', desc: 'What comes after — the fallout, and the story you carry forward.', skill: 'radical-acceptance', skillName: 'Radical Acceptance' }
+];
+
+/* ---- Skills Charades: a shuffled 50-card deck of things to act out silently.
+   type: 'skill' | 'emotion' | 'vulnerability' | 'coping'. `hint` is the acting cue
+   the actor sees; `about` is the teaching line shown after each round. ---- */
+const CHARADES_DECK = [
+  { word: 'Observe', emoji: '👀', type: 'skill', hint: 'Scan the room, noticing — no words.', about: 'Just notice what is happening right now, without getting caught in it.' },
+  { word: 'Describe', emoji: '🗣️', type: 'skill', hint: 'Point and mime labeling things one by one.', about: 'Put words to what you notice — stick to the facts.' },
+  { word: 'Participate', emoji: '💃', type: 'skill', hint: 'Throw yourself fully into the moment.', about: 'Jump in completely instead of watching from the sidelines.' },
+  { word: 'TIPP', emoji: '🧊', type: 'skill', hint: 'Mime pressing an ice cube to your neck, then slow breaths.', about: 'Temperature, Intense exercise, Paced breathing, Paired muscle — cool the body down.' },
+  { word: 'STOP', emoji: '✋', type: 'skill', hint: 'Freeze mid-step with a hand up.', about: 'Stop, Take a step back, Observe, Proceed mindfully.' },
+  { word: 'Opposite Action', emoji: '🌀', type: 'skill', hint: 'Mime sad, then flip it into a huge smile.', about: 'Do the opposite of what the emotion urges you to do.' },
+  { word: 'Riding the Wave', emoji: '🌊', type: 'skill', hint: 'Arms sway up and down like a wave.', about: 'Let the emotion rise, peak, and pass without fighting it.' },
+  { word: 'Radical Acceptance', emoji: '🌳', type: 'skill', hint: 'Open palms, calm nod, slow release.', about: 'Accept reality as it is — not approving, just letting go of the fight.' },
+  { word: 'Check the Facts', emoji: '🔎', type: 'skill', hint: 'Mime a magnifying glass over the evidence.', about: 'Ask: does this emotion fit the facts of what actually happened?' },
+  { word: 'DEAR MAN', emoji: '💬', type: 'skill', hint: 'Mime asking confidently, hand out, patient.', about: 'Describe, Express, Assert, Reinforce, stay Mindful, Appear confident, Negotiate.' },
+  { word: 'GIVE', emoji: '💝', type: 'skill', hint: 'Mime gentle listening and nodding.', about: 'Gentle, Interested, Validate, Easy manner — keep relationships warm.' },
+  { word: 'FAST', emoji: '🧲', type: 'skill', hint: 'Mime standing your ground, palm out, not backing down.', about: 'Fair, no over-Apologies, Stick to values, Truthful — keep self-respect.' },
+  { word: 'Self-Soothe', emoji: '🕯️', type: 'skill', hint: 'Mime smelling something lovely, then relaxing.', about: 'Calm your five senses — sight, sound, touch, taste, smell.' },
+  { word: 'PLEASE', emoji: '🍎', type: 'skill', hint: 'Mime eating an apple, then sleeping.', about: 'Treat Physical illness, Eat balanced, Avoid drugs, Sleep, Exercise.' },
+  { word: 'Cope Ahead', emoji: '📋', type: 'skill', hint: 'Mime rehearsing a plan step by step.', about: 'Rehearse a tough situation in your head before it happens.' },
+  { word: 'Pros & Cons', emoji: '⚖️', type: 'skill', hint: 'Weigh one hand against the other.', about: 'List the pros and cons of acting on the urge.' },
+  { word: 'Wise Mind', emoji: '🧘', type: 'skill', hint: 'Mime a calm, balanced center.', about: 'The place where reasonable mind and emotion mind meet.' },
+  { word: 'One-Mindfully', emoji: '🎯', type: 'skill', hint: 'Mime doing one thing at a time.', about: 'Give your full attention to one thing at a time.' },
+  { word: 'Non-Judgmental', emoji: '⚪', type: 'skill', hint: 'Shrug calmly and wave off a label.', about: 'Describe the facts without good/bad judgments.' },
+  { word: 'Do What Works', emoji: '🛠️', type: 'skill', hint: 'Mime fixing the problem, not fighting.', about: 'Be effective — do what works in the situation.' },
+  { word: 'Anger', emoji: '😠', type: 'emotion', hint: 'Steam, clenched fists, tapping foot.', about: 'A hot, energizing emotion — can be quick or build slowly.' },
+  { word: 'Sadness', emoji: '😢', type: 'emotion', hint: 'Wipe a tear, drooped shoulders.', about: 'A heavy, slowing emotion — often from loss or disappointment.' },
+  { word: 'Fear', emoji: '😨', type: 'emotion', hint: 'Wide eyes, trembling, step back.', about: 'A protective emotion that readies you to flee or freeze.' },
+  { word: 'Joy', emoji: '😄', type: 'emotion', hint: 'Big grin, jump, arms up.', about: 'A light, connecting emotion — celebrates something good.' },
+  { word: 'Disgust', emoji: '🤢', type: 'emotion', hint: 'Wrinkled nose, tongue out.', about: 'A turning-away emotion — something feels off or foul.' },
+  { word: 'Surprise', emoji: '😲', type: 'emotion', hint: 'Gasp, jump back, hands up.', about: 'A sudden, brief emotion that sharpens your attention.' },
+  { word: 'Shame', emoji: '🙈', type: 'emotion', hint: 'Cover your face, curl inward.', about: 'A painful emotion about who you are — "I am bad".' },
+  { word: 'Guilt', emoji: '😔', type: 'emotion', hint: 'Downcast eyes, guilty look.', about: 'A discomfort about what you did — "I did bad".' },
+  { word: 'Jealousy', emoji: '😒', type: 'emotion', hint: 'Side-eye, arms crossed.', about: 'A watchful emotion when something you value feels threatened.' },
+  { word: 'Love', emoji: '❤️', type: 'emotion', hint: 'Hand over heart, hug yourself.', about: 'A warm, connecting emotion of care and belonging.' },
+  { word: 'Tired', emoji: '😪', type: 'vulnerability', hint: 'Big yawn, droopy eyes.', about: 'Being worn out lowers your emotion threshold — sleep helps.' },
+  { word: 'Hungry', emoji: '🍔', type: 'vulnerability', hint: 'Rubbing stomach, hungry stare.', about: 'Low fuel makes emotions bigger — a snack can steady you.' },
+  { word: 'Stressed', emoji: '😫', type: 'vulnerability', hint: 'Rubbing temples, tense shoulders.', about: 'Pressure piles up and drains your coping reserve.' },
+  { word: 'Sick', emoji: '🤒', type: 'vulnerability', hint: 'Cough, then check your forehead.', about: 'Illness makes everything harder — treat the body first.' },
+  { word: 'Lonely', emoji: '🫂', type: 'vulnerability', hint: 'Hug yourself, glance around sadly.', about: 'Feeling disconnected raises sensitivity to rejection.' },
+  { word: 'Overwhelmed', emoji: '🌀', type: 'vulnerability', hint: 'Hands on head, spinning slowly.', about: 'Too much at once floods the system — slow it down.' },
+  { word: 'Too Much Caffeine', emoji: '☕', type: 'vulnerability', hint: 'Mime sipping coffee, then jittering.', about: 'Stimulants rev the body — what you put in shapes your mood.' },
+  { word: 'No Sleep', emoji: '🥱', type: 'vulnerability', hint: 'Heavy eyes, head bobbing.', about: 'Skipping sleep short-circuits emotion regulation.' },
+  { word: 'Petting the Cat', emoji: '🐱', type: 'coping', hint: 'Stroke the air and mime a purr.', about: 'A cozy, calming reset — animals lower stress.' },
+  { word: 'Walking the Dog', emoji: '🐶', type: 'coping', hint: 'Hold the leash and stride along.', about: 'Fresh air and movement untangle a busy head.' },
+  { word: 'Gardening', emoji: '🌷', type: 'coping', hint: 'Mime digging, planting, watering.', about: 'Getting your hands in the dirt is grounding.' },
+  { word: 'Dancing', emoji: '💃', type: 'coping', hint: 'Groove and spin.', about: 'Moving to music burns off the energy of emotion.' },
+  { word: 'Deep Breathing', emoji: '🌬️', type: 'coping', hint: 'Slow breath, hands on belly.', about: 'Long exhales tell the nervous system it can relax.' },
+  { word: 'Drawing', emoji: '🎨', type: 'coping', hint: 'Mime sketching in the air.', about: 'Putting feelings on paper gets them out of your head.' },
+  { word: 'Listening to Music', emoji: '🎧', type: 'coping', hint: 'Mime headphones, bobbing head.', about: 'The right song can shift your whole mood.' },
+  { word: 'Baking', emoji: '🧁', type: 'coping', hint: 'Mime a mixing bowl and whisk.', about: 'Hands busy plus something sweet is a comforting reset.' },
+  { word: 'Jogging', emoji: '🏃', type: 'coping', hint: 'Jog in place.', about: 'Cardio burns off adrenaline and lifts mood.' },
+  { word: 'Journaling', emoji: '📓', type: 'coping', hint: 'Mime writing in a notebook.', about: 'Writing down the tangle untangles it.' },
+  { word: 'A Warm Bath', emoji: '🛁', type: 'coping', hint: 'Mime sinking into a bath and relaxing.', about: 'Warmth soothes the body and calms the mind.' },
+  { word: 'A Funny Movie', emoji: '🍿', type: 'coping', hint: 'Mime eating popcorn, belly laugh.', about: 'Laughter is a fast, free mood reset.' }
 ];
 
 /* ---- Playable DBT Jeopardy. Multiple boards; each clue has a value (v),

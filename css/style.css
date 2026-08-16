@@ -509,6 +509,113 @@ footer { text-align: center; color: var(--ink-soft); font-size: .78rem; padding:
 .ws-tip { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #fff8ec; font-size: .82rem; color: var(--ink-soft); line-height: 1.4; }
 .ws-tip b { color: #a06a00; }
 
+/* ---------- Skill Scramble ---------- */
+.scramble-tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0 10px; }
+.scramble-tile {
+  width: 48px; height: 48px; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif;
+  font-size: 1.5rem; font-weight: 800; text-transform: uppercase; color: var(--primary);
+  background: #fff; border: 2px solid #ece9f6; border-radius: 12px; cursor: pointer;
+  box-shadow: var(--shadow-sm); transition: all .12s ease; user-select: none; -webkit-user-select: none;
+}
+.scramble-tile:hover:not(:disabled) { border-color: var(--primary); background: #f6f3ff; transform: translateY(-2px); }
+.scramble-tile:disabled { opacity: .35; cursor: default; }
+.scramble-picked { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 48px; margin: 4px 0 14px; }
+.scramble-box {
+  width: 40px; height: 46px; border-bottom: 3px solid var(--primary); border-radius: 6px;
+  display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-size: 1.35rem;
+  font-weight: 800; text-transform: uppercase; color: var(--primary-dark); background: #f6f3ff;
+}
+.scramble-box.empty { border-bottom-color: #d8d2e6; background: transparent; }
+.scramble-wrap.wrong .scramble-tiles { animation: shake .4s ease; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-6px); } 40%,80% { transform: translateX(6px); } }
+
+/* ---------- DBT Word Search ---------- */
+.wsearch-board { overflow-x: auto; }
+.wsearch-grid { border-collapse: collapse; margin: 0 auto; }
+.wsearch-cell {
+  width: 34px; height: 34px; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800;
+  font-size: 1.05rem; color: var(--ink); background: #fff; border: 1px solid #e6e1f2; cursor: pointer;
+  user-select: none; -webkit-user-select: none; transition: all .1s ease;
+}
+.wsearch-cell:hover { background: #f6f3ff; }
+.wsearch-cell.sel { background: #ffe9a8; }
+.wsearch-cell.found { background: #d8f7e8; color: #0f7a5a; }
+.wsearch-words { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 14px 0 4px; }
+.wsearch-word {
+  padding: 6px 12px; border-radius: 999px; background: #fff; border: 2px solid #ece9f6;
+  font-size: .85rem; font-weight: 800; color: var(--ink-soft);
+}
+.wsearch-word.found { border-color: #7ee0b8; background: #e8fbf2; color: #0f7a5a; text-decoration: line-through; }
+
+/* ---------- DBT Crossword ---------- */
+.xw-board { overflow-x: auto; }
+.xw-table { border-collapse: collapse; margin: 0 auto; }
+.xw-cell-wrap { position: relative; width: 40px; height: 40px; padding: 0; }
+.xw-cell {
+  width: 100%; height: 100%; text-align: center; font-family: 'Baloo 2', sans-serif; font-weight: 800;
+  font-size: 1.2rem; text-transform: uppercase; color: var(--primary-dark); background: #fff;
+  border: 1px solid #b9b0d8; border-radius: 0; outline: none; padding: 0; box-sizing: border-box;
+}
+.xw-cell:focus { border: 2px solid var(--primary); background: #f6f3ff; }
+.xw-block { width: 100%; height: 100%; background: #3a3650; border: 1px solid #2c2940; }
+.xw-num { position: absolute; top: 1px; left: 3px; font-size: .55rem; font-weight: 800; color: var(--ink-soft); pointer-events: none; }
+.xw-cell.active { background: #fff6cf; }
+.xw-cell.ok { background: #d8f7e8; color: #0f7a5a; }
+.xw-cell.wrong { background: #ffe1e6; color: #c0392b; }
+.xw-cell.revealed { background: #dff0ff; color: #1a6fb5; }
+.xw-clues { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.xw-clues-col b { display: block; margin-bottom: 6px; }
+.xw-clues-col p { font-size: .85rem; line-height: 1.5; color: var(--ink-soft); margin: 0 0 8px; }
+@media (max-width: 560px) { .xw-clues { grid-template-columns: 1fr; } }
+
+/* ---------- Skills Matching (Model of Emotions) ---------- */
+.model-board { max-width: 540px; margin: 14px auto 0; }
+.model-slot {
+  display: flex; align-items: center; gap: 12px; background: #fff; border: 2px solid #ece9f6;
+  border-radius: var(--radius); padding: 12px 14px; cursor: pointer; transition: all .12s ease;
+}
+.model-slot:hover { border-color: var(--primary); background: #f6f3ff; }
+.model-slot.filled { border-color: #7ee0b8; background: #e8fbf2; cursor: default; }
+.model-slot-info { flex: 1; min-width: 0; }
+.model-slot-info b { font-size: .95rem; display: block; }
+.model-slot-info span { font-size: .8rem; color: var(--ink-soft); line-height: 1.4; display: block; }
+.model-slot-drop {
+  min-width: 118px; text-align: center; padding: 8px 10px; border-radius: 10px; font-weight: 800;
+  font-size: .85rem; border: 2px dashed #cfc4f5; color: var(--ink-soft); background: #f5f3ff; flex-shrink: 0;
+}
+.model-slot.filled .model-slot-drop { border: 2px solid #7ee0b8; color: #0f7a5a; background: #fff; }
+.model-arrow { text-align: center; color: var(--primary); font-weight: 800; padding: 3px 0; line-height: 1; }
+.match-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+.match-chip {
+  padding: 10px 16px; border-radius: 999px; background: #fff; border: 2px solid #ece9f6;
+  font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: .9rem; color: var(--primary); cursor: pointer;
+  transition: all .12s ease;
+}
+.match-chip:hover { border-color: var(--primary); transform: translateY(-2px); }
+.match-chip.sel { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
+
+/* ---------- Skills Charades ---------- */
+.charade-card {
+  background: #fff; border: 2px solid #ece9f6; border-radius: var(--radius);
+  padding: 28px 20px; text-align: center;
+}
+.charade-emoji { font-size: 3.4rem; line-height: 1; }
+.charade-word { font-size: 1.7rem; font-weight: 800; margin: 10px 0 4px; letter-spacing: .5px; }
+.charade-type {
+  display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: .7rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .5px; margin-top: 6px;
+}
+.charade-type.skill { background: #e8fbf2; color: #0f7a5a; }
+.charade-type.emotion { background: #ffe8ec; color: #c0392b; }
+.charade-type.vulnerability { background: #fff3d6; color: #9a6b00; }
+.charade-type.coping { background: #e3f0ff; color: #1a6fb5; }
+.charade-hint { color: var(--ink-soft); font-size: .85rem; margin: 12px 0 0; line-height: 1.5; }
+.charade-timer { margin: 16px 0 0; }
+.charade-bar { height: 12px; background: #f0edff; border-radius: 999px; overflow: hidden; }
+.charade-fill { height: 100%; background: linear-gradient(90deg, #7c5cff, #0f9d8a); border-radius: 999px; transition: width 1s linear; }
+.charade-count { text-align: center; font-weight: 800; font-size: 1.4rem; margin-top: 8px; color: var(--primary); }
+.charade-count.timeup { color: #e24a4a; }
+
 /* ---------- Print: clean worksheet copies ---------- */
 @media print {
   @page { margin: 14mm; }

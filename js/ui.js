@@ -21,7 +21,7 @@ const UI = {
     const viewFromHash = (location.hash || '').replace(/^#\/?/, '');
     if (viewFromHash === 'movies' || viewFromHash.indexOf('movies/') === 0) {
       this.show('movies', { page: viewFromHash.split('/')[1] || 'orientation' });
-    } else if (viewFromHash && ['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(viewFromHash)) {
+    } else if (viewFromHash && ['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(viewFromHash)) {
       this.show(viewFromHash);
     } else if (saved) {
       this.show('map');
@@ -32,7 +32,7 @@ const UI = {
     window.addEventListener('hashchange', () => {
       const v = (location.hash || '').replace(/^#\/?/, '');
       if (v === 'movies' || v.indexOf('movies/') === 0) { this.show('movies', { page: v.split('/')[1] || 'orientation' }); return; }
-      if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(v)) this.show(v);
+      if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(v)) this.show(v);
     });
   },
 
@@ -261,6 +261,28 @@ const UI = {
       case 'jeopardy-restart': this.jeopardyRestart(); break;
       case 'jeopardy-board': this.jeopardySelectBoard(data.id); break;
       case 'jeopardy-boards': this.jeopardyShowBoards(); break;
+      case 'scramble-pick': this.scramblePick(+data.i); this.renderAll(); break;
+      case 'scramble-back': this.scrambleBack(); this.renderAll(); break;
+      case 'scramble-clear': this.scrambleClear(); this.renderAll(); break;
+      case 'scramble-shuffle': this.scrambleShuffle(); this.renderAll(); break;
+      case 'scramble-check': this.scrambleCheck(); this.renderAll(); break;
+      case 'scramble-hint': this.scrambleHint(); this.renderAll(); break;
+      case 'scramble-reveal': this.scrambleReveal(); this.renderAll(); break;
+      case 'scramble-next': this.scrambleNext(); this.renderAll(); break;
+      case 'scramble-new': this.scrambleStart(); this.renderAll(); break;
+      case 'wordsearch-new': this.wordSearchStart(); this.renderAll(); break;
+      case 'crossword-check': this.crosswordCheck(); break;
+      case 'crossword-reveal': this.crosswordReveal(); break;
+      case 'crossword-flip': this.crosswordFlip(); break;
+      case 'crossword-new': this.crosswordStart(); this.renderAll(); break;
+      case 'matching-select': this.matchingSelect(+data.i); this.renderAll(); break;
+      case 'matching-place': this.matchingPlace(+data.i); this.renderAll(); break;
+      case 'matching-new': this.matchingStart(); this.renderAll(); break;
+      case 'charades-act': this.charadesAct(); this.renderAll(); break;
+      case 'charades-guessed': this.charadesGuessed(); break;
+      case 'charades-pass': this.charadesPass(false); break;
+      case 'charades-next': this.charadesNext(); break;
+      case 'charades-new': this.charadesNew(); break;
       case 'badges': this.show('badges'); break;
       case 'movies': this.show('movies', { page: data.page || 'orientation' }); break;
       case 'quiz-start': this.startQuiz(); break;
@@ -283,6 +305,11 @@ const UI = {
 
   /* ---------- router ---------- */
   show(view, params) {
+    if (view !== 'charades' && this.charades && this.charades.timerId) {
+      clearInterval(this.charades.timerId);
+      this.charades.timerId = null;
+    }
+    if (view === 'wordsearch') this.wordSearchStart();
     this.view = view;
     this.params = Object.assign({}, this.params || {}, params || {});
     this.closeModal();
@@ -290,7 +317,7 @@ const UI = {
     window.scrollTo(0, 0);
     if (view === 'movies') {
       try { history.replaceState(null, '', '#/movies/' + (this.params.page || 'orientation')); } catch (e) {}
-    } else if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy'].includes(view)) {
+    } else if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(view)) {
       try { history.replaceState(null, '', '#/' + view); } catch (e) {}
     }
   },
@@ -314,12 +341,19 @@ const UI = {
       case 'validation': body = this.renderValidation(); break;
       case 'games': body = this.renderGames(); break;
       case 'jeopardy': body = this.renderJeopardy(); break;
+      case 'scramble': body = this.renderScramble(); break;
+      case 'wordsearch': body = this.renderWordSearch(); break;
+      case 'crossword': body = this.renderCrossword(); break;
+      case 'matching': body = this.renderMatching(); break;
+      case 'charades': body = this.renderCharades(); break;
       case 'badges': body = this.renderBadges(); break;
       case 'closet': body = this.renderCloset(); break;
       default: body = this.renderMap();
     }
     app.innerHTML = hud + body + this.renderFooter();
     this.initVideoFallbacks(app);
+    if (this.view === 'wordsearch') this.initWordSearch(app);
+    if (this.view === 'crossword') this.initCrossword(app);
   },
 
   renderHUD() {
@@ -364,7 +398,7 @@ const UI = {
           <button class="menu-btn" data-act="worksheets"><span class="menu-ico" style="background:#fffbea">📝</span><span><b>Worksheets</b><span>Practice every skill on paper — teens &amp; adults</span></span></button>
           <button class="menu-btn" data-act="dilemmas"><span class="menu-ico" style="background:#eaf3ff">⚖️</span><span><b>Dialectical Dilemmas</b><span>Spot the both/and traps — and find the middle</span></span></button>
           <button class="menu-btn" data-act="validation"><span class="menu-ico" style="background:#fff3f6">💗</span><span><b>Levels of Validation</b><span>Six ways to make someone feel truly understood</span></span></button>
-          <button class="menu-btn" data-act="games"><span class="menu-ico" style="background:#e6fff8">🎮</span><span><b>Games</b><span>Jeopardy, Bingo, matching games &amp; more</span></span></button>
+          <button class="menu-btn" data-act="games"><span class="menu-ico" style="background:#e6fff8">🎮</span><span><b>Mini Games</b><span>Jeopardy, Bingo, matching games &amp; more</span></span></button>
         </div>
       </div>
     </div>`;
@@ -516,7 +550,7 @@ const UI = {
         <button class="btn sm ghost" data-act="worksheets">📝 Worksheets</button>
         <button class="btn sm ghost" data-act="dilemmas">⚖️ Dilemmas</button>
         <button class="btn sm ghost" data-act="validation">💗 Validation</button>
-        <button class="btn sm ghost" data-act="games">🎮 Games</button>
+        <button class="btn sm ghost" data-act="games">🎮 Mini Games</button>
         <button class="btn sm ghost" data-act="badges">🏅 Badges</button>
         <button class="btn sm ghost" data-act="closet">🎨 Closet</button>
         <button class="btn sm rose" data-act="reset" style="margin-left:auto">↺ Reset Game</button>
@@ -1060,7 +1094,7 @@ const UI = {
   /* ---------- games hub ---------- */
   renderGames() {
     return `<div class="screen">
-      <div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🎮 Games</h2></div>
+      <div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🎮 Mini Games</h2></div>
       <p class="muted" style="margin-bottom:16px">Play your way through DBT — a growing set of games that turn skills practice into fun.</p>
       <div class="coach-grid">
         ${GAMES.map(g => `<div class="module-card">
@@ -1085,6 +1119,31 @@ const UI = {
     if (id === 'jeopardy') {
       if (!this.jeopardy) this.jeopardyReset();
       this.show('jeopardy');
+      return;
+    }
+    if (id === 'skill-scramble') {
+      this.scrambleStart();
+      this.show('scramble');
+      return;
+    }
+    if (id === 'word-search') {
+      this.wordSearchStart();
+      this.show('wordsearch');
+      return;
+    }
+    if (id === 'crossword') {
+      this.crosswordStart();
+      this.show('crossword');
+      return;
+    }
+    if (id === 'skills-matching') {
+      this.matchingStart();
+      this.show('matching');
+      return;
+    }
+    if (id === 'skill-charades') {
+      this.charadesStart();
+      this.show('charades');
       return;
     }
     this.toast('🛠️ That game is in the works — coming soon.', '');
@@ -1221,6 +1280,773 @@ const UI = {
           </div>
         </button>`).join('')}
       </div>
+    </div>`;
+  },
+
+  /* ---------- skill scramble ---------- */
+  _shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  },
+  scrambleStart() {
+    const pool = this._shuffle(SCRAMBLE_WORDS.slice()).slice(0, 10).map(w => {
+      const letters = w.word.split('');
+      let s = letters.slice();
+      let tries = 0;
+      do { s = this._shuffle(letters); tries++; } while (s.join('') === w.word && tries < 12);
+      return Object.assign({}, w, { letters: s });
+    });
+    this.scramble = { pool, idx: 0, picked: [], score: 0, done: 0, hint: false, wrong: false, solved: false };
+  },
+  scramblePick(i) {
+    const g = this.scramble;
+    if (!g || g.solved || g.picked.indexOf(i) >= 0) return;
+    g.picked.push(i);
+    g.wrong = false;
+  },
+  scrambleBack() {
+    const g = this.scramble;
+    if (!g || g.solved) return;
+    g.picked.pop();
+    g.wrong = false;
+  },
+  scrambleClear() {
+    const g = this.scramble;
+    if (!g) return;
+    g.picked = [];
+    g.wrong = false;
+  },
+  scrambleShuffle() {
+    const g = this.scramble;
+    if (!g || g.solved) return;
+    const cur = g.pool[g.idx];
+    let s;
+    let tries = 0;
+    do { s = this._shuffle(cur.letters.slice()); tries++; } while (s.join('') === cur.word && tries < 12);
+    cur.letters = s;
+    g.picked = [];
+    g.wrong = false;
+    this.sound('click');
+  },
+  scrambleCheck() {
+    const g = this.scramble;
+    const cur = g.pool[g.idx];
+    const guess = g.picked.map(i => cur.letters[i]).join('');
+    if (guess === cur.word) {
+      g.solved = true;
+      g.score += 10;
+      g.done++;
+      this.sound('correct');
+      this.toast(`✅ ${esc(cur.label)} — nice unscramble!`, 'teal');
+    } else {
+      g.wrong = true;
+      this.sound('wrong');
+      this.toast('Not quite — give it another go.', '');
+    }
+  },
+  scrambleHint() {
+    this.scramble.hint = true;
+    this.sound('click');
+  },
+  scrambleReveal() {
+    const g = this.scramble;
+    const cur = g.pool[g.idx];
+    if (g.solved) return;
+    g.solved = true;
+    g.score += 5;
+    g.done++;
+    this.sound('correct');
+    this.toast(`💡 ${esc(cur.label)} — ${esc(cur.clue)}`, '');
+  },
+  scrambleNext() {
+    const g = this.scramble;
+    g.idx++;
+    g.picked = [];
+    g.hint = false;
+    g.wrong = false;
+    g.solved = false;
+  },
+  renderScramble() {
+    if (!this.scramble) this.scrambleStart();
+    const g = this.scramble;
+    const cur = g.pool[g.idx];
+    const last = g.idx >= g.pool.length - 1;
+    const done = g.done >= g.pool.length;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🔤 Skill Scramble</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.done}/${g.pool.length}</b><span>Solved</span></div>
+        <div class="stat-card"><b>${g.idx + 1}/${g.pool.length}</b><span>Round</span></div>
+      </div>`;
+    if (done) {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 All skills unscrambled!</h3>
+          <p class="muted">Final score: <b>${g.score}</b> — 10 points per skill, 5 if you revealed.</p>
+          <button class="btn teal" data-act="scramble-new" style="margin-top:10px">↺ Play Again</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const boxes = cur.word.split('').map((ch, i) => {
+      const val = i < g.picked.length ? cur.letters[g.picked[i]] : '';
+      return `<div class="scramble-box ${val ? '' : 'empty'}">${val || ''}</div>`;
+    }).join('');
+    const tiles = cur.letters.map((ch, i) => {
+      const used = g.picked.indexOf(i) >= 0;
+      return `<button class="scramble-tile" data-act="scramble-pick" data-i="${i}" ${used || g.solved ? 'disabled' : ''}>${ch}</button>`;
+    }).join('');
+    return `<div class="screen">${top}
+      <p class="muted" style="text-align:center;margin:6px 0 4px">Unscramble the letters to name the DBT skill. Tap a letter to add it to your answer.</p>
+      <div class="scramble-wrap ${g.wrong ? 'wrong' : ''}">
+        <div class="scramble-picked">${boxes}</div>
+        <div class="scramble-tiles">${tiles}</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn ghost sm" data-act="scramble-shuffle" ${g.solved ? 'disabled' : ''}>🔀 Shuffle</button>
+        <button class="btn ghost sm" data-act="scramble-back">⌫ Undo</button>
+        <button class="btn ghost sm" data-act="scramble-clear">✕ Clear</button>
+        <button class="btn teal sm" data-act="scramble-check" ${g.solved ? 'disabled' : ''}>✔ Check</button>
+      </div>
+      <div class="panel" style="margin-top:16px;text-align:center">
+        ${g.solved
+          ? `<h3 style="color:var(--teal, #0f9d8a)">✅ ${esc(cur.label)}</h3><p class="muted">${esc(cur.clue)}</p>
+             <button class="btn gold" style="margin-top:12px" data-act="scramble-next">${last ? '🏁 Finish' : 'Next →'}</button>`
+          : `<p class="muted">${g.hint ? `💡 ${esc(cur.module)}: ${esc(cur.clue)}` : 'Stuck? A hint reveals the module and clue.'}</p>
+             <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+               <button class="btn ghost sm" data-act="scramble-hint">💡 Hint</button>
+               <button class="btn ghost sm" data-act="scramble-reveal">👀 Reveal (+5)</button>
+             </div>`
+          }
+      </div>
+    </div>`;
+  },
+
+  /* ---------- dbt word search ---------- */
+  wordSearchStart() {
+    const words = this._shuffle(WORDSEARCH_WORDS.slice()).slice(0, 10);
+    words.sort((a, b) => b.word.length - a.word.length);
+    const longest = Math.max(...words.map(w => w.word.length));
+    const size = Math.max(12, longest + 2);
+    const grid = [];
+    for (let r = 0; r < size; r++) grid.push(new Array(size).fill(null));
+    const dirs = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]];
+    const placed = [];
+    const cellOwner = {};
+    for (const w of words) {
+      const letters = w.word.split('');
+      const len = letters.length;
+      let ok = false;
+      for (let t = 0; t < 90 && !ok; t++) {
+        const d = dirs[Math.floor(Math.random() * 8)];
+        const dr = d[0], dc = d[1];
+        const r = (dr >= 0 ? 0 : len - 1) + Math.floor(Math.random() * (size - len + 1));
+        const c = (dc >= 0 ? 0 : len - 1) + Math.floor(Math.random() * (size - len + 1));
+        let fit = true;
+        for (let k = 0; k < len; k++) {
+          const v = grid[r + k * dr][c + k * dc];
+          if (v && v !== letters[k]) { fit = false; break; }
+        }
+        if (fit) {
+          const cells = [];
+          for (let k = 0; k < len; k++) {
+            const rr = r + k * dr, cc = c + k * dc;
+            grid[rr][cc] = letters[k];
+            cells.push(rr + ',' + cc);
+          }
+          placed.push({ word: w.word, label: w.label, cells });
+          cells.forEach(cell => { cellOwner[cell] = w.word; });
+          ok = true;
+        }
+      }
+    }
+    const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!grid[r][c]) grid[r][c] = alpha[Math.floor(Math.random() * 26)];
+    this.wordSearch = { grid, size, words: placed, found: {}, cellOwner };
+  },
+  wordSearchLine(a, b) {
+    const pa = a.split(',').map(Number), pb = b.split(',').map(Number);
+    const dr = pb[0] - pa[0], dc = pb[1] - pa[1];
+    if (dr === 0 && dc === 0) return [a];
+    if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return null;
+    const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+    const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+    const cells = [];
+    for (let k = 0; k <= steps; k++) cells.push((pa[0] + k * stepR) + ',' + (pa[1] + k * stepC));
+    return cells;
+  },
+  wordSearchCheck(cells) {
+    const g = this.wordSearch;
+    if (!g) return;
+    const str = cells.map(cell => { const p = cell.split(',').map(Number); return g.grid[p[0]][p[1]]; }).join('');
+    const rev = str.split('').reverse().join('');
+    let hit = null;
+    for (const w of g.words) {
+      if (g.found[w.word]) continue;
+      if (str === w.word || rev === w.word) { hit = w; break; }
+    }
+    if (hit) {
+      g.found[hit.word] = hit.cells;
+      this.sound('correct');
+      this.toast(`🎉 Found ${esc(hit.label)}!`, 'teal');
+      const n = Object.keys(g.found).length;
+      if (n === g.words.length) { setTimeout(() => this.confetti(), 120); this.toast('🏆 Word search cleared!', 'gold'); }
+    } else {
+      this.sound('wrong');
+    }
+  },
+  wordSearchPaint() {
+    const board = document.querySelector('.wsearch-grid');
+    if (!board) return;
+    const g = this.wordSearch;
+    board.querySelectorAll('.wsearch-cell').forEach(td => {
+      const owner = g.cellOwner[td.dataset.cell];
+      td.classList.remove('sel', 'found');
+      if (owner && g.found[owner]) td.classList.add('found');
+    });
+    if (this._wsDrag) {
+      this._wsDrag.cells.forEach(cell => {
+        const td = board.querySelector('[data-cell="' + cell + '"]');
+        if (td) td.classList.add('sel');
+      });
+    }
+  },
+  initWordSearch(app) {
+    const grid = app.querySelector('.wsearch-grid');
+    if (!grid) return;
+    this._wsDrag = null;
+    grid.addEventListener('pointerdown', e => {
+      const td = e.target.closest('.wsearch-cell');
+      if (!td) return;
+      try { grid.setPointerCapture(e.pointerId); } catch (err) {}
+      this._wsDrag = { start: td.dataset.cell, cells: [td.dataset.cell] };
+      this.wordSearchPaint();
+    });
+    grid.addEventListener('pointermove', e => {
+      if (!this._wsDrag) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const td = el && el.closest('.wsearch-cell');
+      if (!td) return;
+      const line = this.wordSearchLine(this._wsDrag.start, td.dataset.cell);
+      if (line) this._wsDrag.cells = line;
+      this.wordSearchPaint();
+    });
+    grid.addEventListener('pointerup', () => {
+      if (!this._wsDrag) return;
+      this.wordSearchCheck(this._wsDrag.cells);
+      this._wsDrag = null;
+      this.wordSearchPaint();
+    });
+  },
+  renderWordSearch() {
+    const g = this.wordSearch || (this.wordSearchStart(), this.wordSearch);
+    const total = g.words.length;
+    const foundN = Object.keys(g.found).length;
+    const done = foundN === total;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🔍 DBT Word Search</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${foundN}/${total}</b><span>Found</span></div>
+        <div class="stat-card"><b>${g.size}×${g.size}</b><span>Grid</span></div>
+        <div class="stat-card"><b>${done ? '🏁 Cleared!' : 'Keep hunting'}</b><span>${done ? 'Nice work!' : 'Drag to select'}</span></div>
+      </div>`;
+    if (done) {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 All ${total} skills found!</h3>
+          <p class="muted">You spotted every DBT skill hiding in the grid.</p>
+          <button class="btn teal" data-act="wordsearch-new" style="margin-top:10px">↺ New Puzzle</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const rows = [];
+    for (let r = 0; r < g.size; r++) {
+      let tds = '';
+      for (let c = 0; c < g.size; c++) {
+        const cell = r + ',' + c;
+        const owner = g.cellOwner[cell];
+        const cls = owner && g.found[owner] ? 'found' : '';
+        tds += `<td class="wsearch-cell ${cls}" data-cell="${cell}">${g.grid[r][c]}</td>`;
+      }
+      rows.push(`<tr>${tds}</tr>`);
+    }
+    const chips = g.words.map(w => `<span class="wsearch-word ${g.found[w.word] ? 'found' : ''}">${esc(w.label)}</span>`).join('');
+    return `<div class="screen">${top}
+      <p class="muted" style="text-align:center;margin:6px 0 14px">Drag across a straight line of letters to mark a word — forwards or backwards.</p>
+      <div class="wsearch-board"><table class="wsearch-grid">${rows.join('')}</table></div>
+      <div class="wsearch-words">${chips}</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button class="btn ghost sm" data-act="wordsearch-new">🔀 Shuffle</button>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- dbt crossword ---------- */
+  crosswordStart() {
+    const SIZE = 26;
+    const grid = [];
+    for (let r = 0; r < SIZE; r++) grid.push(new Array(SIZE).fill(null));
+    const entries = [];
+    const clues = CROSSWORD_CLUES.slice().sort((a, b) => b.answer.length - a.answer.length);
+
+    const fits = (word, r, c, dr, dc) => {
+      const L = word.length;
+      if (r < 0 || c < 0 || r + dr * (L - 1) >= SIZE || c + dc * (L - 1) >= SIZE) return false;
+      for (let k = 0; k < L; k++) {
+        const v = grid[r + dr * k][c + dc * k];
+        if (v && v !== word[k]) return false;
+      }
+      const er = r - dr, ec = c - dc;
+      const lr = r + dr * L, lc = c + dc * L;
+      if (er >= 0 && ec >= 0 && grid[er][ec]) return false;
+      if (lr < SIZE && lc < SIZE && grid[lr][lc]) return false;
+      return true;
+    };
+    const place = (word, r, c, dr, dc) => {
+      for (let k = 0; k < word.length; k++) grid[r + dr * k][c + dc * k] = word[k];
+    };
+
+    const first = clues[0];
+    place(first.answer, 5, 5, 0, 1);
+    entries.push({ word: first.answer, clue: first.clue, dir: 'across', r: 5, c: 5 });
+
+    for (let i = 1; i < clues.length; i++) {
+      const w = clues[i];
+      let best = null;
+      for (const p of entries) {
+        for (let k = 0; k < p.word.length; k++) {
+          const pr = p.dir === 'across' ? p.r : p.r + k;
+          const pc = p.dir === 'across' ? p.c + k : p.c;
+          const ch = p.word[k];
+          const idx = w.answer.indexOf(ch);
+          if (idx < 0) continue;
+          const dr = p.dir === 'across' ? 1 : 0;
+          const dc = p.dir === 'across' ? 0 : 1;
+          const nr = pr - idx * dr;
+          const nc = pc - idx * dc;
+          if (!fits(w.answer, nr, nc, dr, dc)) continue;
+          const score = 100 - idx;
+          if (!best || score > best.score) best = { r: nr, c: nc, dr, dc, score };
+        }
+      }
+      if (best) {
+        place(w.answer, best.r, best.c, best.dr, best.dc);
+        entries.push({ word: w.answer, clue: w.clue, dir: best.dr === 1 ? 'down' : 'across', r: best.r, c: best.c });
+      }
+    }
+
+    let minR = SIZE, minC = SIZE, maxR = 0, maxC = 0;
+    for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (grid[r][c]) {
+      if (r < minR) minR = r; if (c < minC) minC = c; if (r > maxR) maxR = r; if (c > maxC) maxC = c;
+    }
+    const rows = maxR - minR + 1, cols = maxC - minC + 1;
+    const answers = {};
+    for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) if (grid[r][c]) answers[(r - minR) + ',' + (c - minC)] = grid[r][c];
+
+    const starts = [];
+    const seen = {};
+    entries.forEach(p => {
+      const key = (p.r - minR) + ',' + (p.c - minC);
+      if (!seen[key]) { seen[key] = true; starts.push({ key, r: p.r - minR, c: p.c - minC }); }
+    });
+    starts.sort((a, b) => (a.r - b.r) || (a.c - b.c));
+    starts.forEach((s, i) => s.num = i + 1);
+    const numMap = {};
+    starts.forEach(s => { numMap[s.key] = s.num; });
+    entries.forEach(p => { p.key = (p.r - minR) + ',' + (p.c - minC); p.num = numMap[p.key]; });
+
+    this.crossword = { rows, cols, answers, entries, numMap, active: null };
+  },
+  crosswordRun(r, c, dir) {
+    const g = this.crossword;
+    const cells = [];
+    if (dir === 'across') {
+      let c0 = c; while (g.answers[r + ',' + (c0 - 1)]) c0--;
+      let c1 = c; while (g.answers[r + ',' + (c1 + 1)]) c1++;
+      for (let cc = c0; cc <= c1; cc++) cells.push(r + ',' + cc);
+    } else {
+      let r0 = r; while (g.answers[(r0 - 1) + ',' + c]) r0--;
+      let r1 = r; while (g.answers[(r1 + 1) + ',' + c]) r1++;
+      for (let rr = r0; rr <= r1; rr++) cells.push(rr + ',' + c);
+    }
+    return cells;
+  },
+  crosswordActiveSet(r, c, dir) {
+    if (!this.crossword) return;
+    this.crossword.active = { r, c, dir };
+  },
+  crosswordPaint() {
+    const board = document.querySelector('.xw-table');
+    if (!board) return;
+    const g = this.crossword;
+    board.querySelectorAll('.xw-cell').forEach(inp => {
+      inp.classList.remove('active');
+      if (g.active) {
+        const run = this.crosswordRun(g.active.r, g.active.c, g.active.dir);
+        if (run.indexOf(inp.dataset.r + ',' + inp.dataset.c) >= 0) inp.classList.add('active');
+      }
+    });
+  },
+  crosswordFlip() {
+    const g = this.crossword;
+    if (!g.active) return;
+    const runA = this.crosswordRun(g.active.r, g.active.c, 'across');
+    const runD = this.crosswordRun(g.active.r, g.active.c, 'down');
+    if (g.active.dir === 'across' && runD.length > 1) g.active.dir = 'down';
+    else if (g.active.dir === 'down' && runA.length > 1) g.active.dir = 'across';
+    this.crosswordPaint();
+  },
+  crosswordNext(r, c, dir, step) {
+    const run = this.crosswordRun(r, c, dir);
+    const idx = run.indexOf(r + ',' + c);
+    const nx = idx + step;
+    if (nx < 0 || nx >= run.length) return null;
+    const p = run[nx].split(',');
+    return { r: +p[0], c: +p[1] };
+  },
+  crosswordCheck() {
+    const board = document.querySelector('.xw-table');
+    const g = this.crossword;
+    if (!board || !g) return;
+    let correct = 0, total = 0, wrong = 0, empty = 0;
+    board.querySelectorAll('.xw-cell').forEach(inp => {
+      const ans = g.answers[inp.dataset.r + ',' + inp.dataset.c];
+      const v = (inp.value || '').toUpperCase().trim();
+      total++;
+      inp.classList.remove('ok', 'wrong');
+      if (!v) { empty++; return; }
+      if (v === ans) { inp.classList.add('ok'); correct++; }
+      else { inp.classList.add('wrong'); wrong++; }
+    });
+    const status = document.getElementById('xw-status');
+    if (status) status.textContent = correct;
+    if (wrong > 0) { this.sound('wrong'); this.toast(`${correct} correct, ${wrong} to fix.`, ''); }
+    else if (empty > 0) { this.sound('click'); this.toast(`${correct} correct — ${empty} squares still empty.`, 'teal'); }
+    else if (correct === total) {
+      this.sound('badge'); this.confetti();
+      this.toast('🏆 Crossword complete — every DBT clue solved!', 'gold');
+    } else { this.sound('correct'); this.toast('All filled in correctly — great job!', 'teal'); }
+  },
+  crosswordReveal() {
+    const board = document.querySelector('.xw-table');
+    const g = this.crossword;
+    if (!board || !g || !g.active) return;
+    const run = this.crosswordRun(g.active.r, g.active.c, g.active.dir);
+    run.forEach(key => {
+      const p = key.split(',');
+      const inp = board.querySelector('[data-r="' + p[0] + '"][data-c="' + p[1] + '"]');
+      if (inp) { inp.value = g.answers[key]; inp.classList.remove('wrong'); inp.classList.add('revealed'); }
+    });
+    this.sound('correct');
+    this.toast('Word revealed — absorbed it for next time!', 'teal');
+  },
+  initCrossword(app) {
+    const board = app.querySelector('.xw-table');
+    if (!board) return;
+    board.addEventListener('focusin', e => {
+      const inp = e.target.closest('.xw-cell');
+      if (!inp) return;
+      const r = +inp.dataset.r, c = +inp.dataset.c;
+      const g = this.crossword;
+      const hasAcross = this.crosswordRun(r, c, 'across').length > 1;
+      const hasDown = this.crosswordRun(r, c, 'down').length > 1;
+      let dir = 'across';
+      if (g.active && g.active.r === r && g.active.c === c) dir = g.active.dir;
+      else if (!hasAcross && hasDown) dir = 'down';
+      this.crosswordActiveSet(r, c, dir);
+      this.crosswordPaint();
+    });
+    board.addEventListener('input', e => {
+      const inp = e.target.closest('.xw-cell');
+      if (!inp) return;
+      inp.value = (inp.value || '').slice(-1).toUpperCase();
+      inp.classList.remove('wrong');
+      const a = this.crossword && this.crossword.active;
+      if (a) {
+        const next = this.crosswordNext(a.r, a.c, a.dir, 1);
+        if (next) {
+          const el = board.querySelector('[data-r="' + next.r + '"][data-c="' + next.c + '"]');
+          if (el) el.focus();
+        }
+      }
+    });
+    board.addEventListener('keydown', e => {
+      const inp = e.target.closest('.xw-cell');
+      if (!inp) return;
+      const a = this.crossword && this.crossword.active;
+      if (!a) return;
+      if (e.key === 'Backspace' && inp.value === '') {
+        const prev = this.crosswordNext(a.r, a.c, a.dir, -1);
+        if (prev) {
+          const el = board.querySelector('[data-r="' + prev.r + '"][data-c="' + prev.c + '"]');
+          if (el) { el.focus(); el.value = ''; }
+        }
+        return;
+      }
+      const moves = { ArrowLeft: [0, -1], ArrowRight: [0, 1], ArrowUp: [-1, 0], ArrowDown: [1, 0] };
+      if (moves[e.key]) {
+        e.preventDefault();
+        const m = moves[e.key];
+        const el = board.querySelector('[data-r="' + (a.r + m[0]) + '"][data-c="' + (a.c + m[1]) + '"]');
+        if (el) el.focus();
+      }
+    });
+  },
+  renderCrossword() {
+    if (!this.crossword) this.crosswordStart();
+    const g = this.crossword;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="map">← Map</button><h2>🧩 DBT Crossword</h2></div>
+      <p class="muted" style="margin:6px 0 14px">Click a square and type the letter. Each clue is a DBT skill, word, or idea.</p>`;
+    const rows = [];
+    for (let r = 0; r < g.rows; r++) {
+      let tds = '';
+      for (let c = 0; c < g.cols; c++) {
+        const key = r + ',' + c;
+        if (!g.answers[key]) { tds += `<td class="xw-cell-wrap"><div class="xw-block"></div></td>`; continue; }
+        const num = g.numMap[key] || '';
+        tds += `<td class="xw-cell-wrap">${num ? `<span class="xw-num">${num}</span>` : ''}<input class="xw-cell" data-r="${r}" data-c="${c}" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false"></td>`;
+      }
+      rows.push(`<tr>${tds}</tr>`);
+    }
+    const across = g.entries.filter(e => e.dir === 'across').sort((a, b) => a.num - b.num);
+    const down = g.entries.filter(e => e.dir === 'down').sort((a, b) => a.num - b.num);
+    const clueCol = (title, list) => `<div class="xw-clues-col"><b>${title}</b>${list.map(e => `<p><b>${e.num}.</b> ${esc(e.clue)}</p>`).join('') || '<p class="muted">—</p>'}</div>`;
+    return `<div class="screen">${top}
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.entries.length}</b><span>Words</span></div>
+        <div class="stat-card"><b>${Object.keys(g.answers).length}</b><span>Squares</span></div>
+        <div class="stat-card"><b id="xw-status">0</b><span>Correct</span></div>
+      </div>
+      <div class="xw-board"><table class="xw-table">${rows.join('')}</table></div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        <button class="btn teal sm" data-act="crossword-check">✔ Check</button>
+        <button class="btn ghost sm" data-act="crossword-reveal">👀 Reveal Word</button>
+        <button class="btn ghost sm" data-act="crossword-flip">↔ Flip Direction</button>
+        <button class="btn ghost sm" data-act="crossword-new">↺ New Puzzle</button>
+      </div>
+      <div class="xw-clues">${clueCol('Across', across)}${clueCol('Down', down)}</div>
+    </div>`;
+  },
+
+  /* ---------- skills matching (model of emotions) ---------- */
+  matchingStart() {
+    const order = this._shuffle(MODEL_OF_EMOTIONS.map((_, i) => i));
+    this.matching = {
+      slots: MODEL_OF_EMOTIONS.map(s => ({ part: s.part, desc: s.desc, correct: s.skill, skillName: null })),
+      chips: order,
+      sel: null,
+      score: 0,
+      wrongs: 0,
+      placed: 0
+    };
+  },
+
+  matchingSelect(i) {
+    const g = this.matching;
+    if (!g) return;
+    g.sel = (g.sel === i) ? null : i;
+    if (g.sel != null) this.sound('click');
+  },
+
+  matchingPlace(slotIdx) {
+    const g = this.matching;
+    if (!g) return;
+    const slot = g.slots[slotIdx];
+    if (slot.skillName) { this.toast('That part is already filled.', ''); return; }
+    if (g.sel == null) { this.toast('Pick a skill first, then tap the part where it fits.', ''); return; }
+    const model = MODEL_OF_EMOTIONS[g.sel];
+    if (model.skill === slot.correct) {
+      slot.skillName = model.skillName;
+      g.score += 10;
+      g.placed++;
+      g.chips = g.chips.filter(x => x !== g.sel);
+      g.sel = null;
+      this.sound('correct');
+      this.toast(`✅ ${model.skillName} fits the ${slot.part} part!`, 'teal');
+      if (g.placed === g.slots.length) {
+        setTimeout(() => this.confetti(), 150);
+        this.toast('🏆 Model of Emotions complete!', 'gold');
+      }
+    } else {
+      g.wrongs++;
+      this.sound('wrong');
+      this.toast(`Not quite — ${model.skillName} belongs to a different part. Try again.`, '');
+    }
+  },
+
+  renderMatching() {
+    if (!this.matching) this.matchingStart();
+    const g = this.matching;
+    const done = g.placed === g.slots.length;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🧩 Skills Matching</h2></div>
+      <p class="muted" style="margin:6px 0 4px;text-align:center">Pick a skill below, then tap the part of the Model of Emotions where it fits.</p>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.placed}/${g.slots.length}</b><span>Placed</span></div>
+        <div class="stat-card"><b>${g.wrongs}</b><span>Misses</span></div>
+      </div>`;
+    if (done) {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 Model of Emotions complete!</h3>
+          <p class="muted">Every skill found its home — ${g.score} points${g.wrongs ? ', ' + g.wrongs + ' misses along the way' : ', flawless'}.</p>
+          <button class="btn teal" data-act="matching-new" style="margin-top:10px">↺ Play Again</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const slots = g.slots.map((s, i) => {
+      const filled = s.skillName;
+      return `<div class="model-slot ${filled ? 'filled' : ''}" data-act="matching-place" data-i="${i}">
+        <div class="model-slot-info"><b>${esc(s.part)}</b><span>${esc(s.desc)}</span></div>
+        <div class="model-slot-drop">${filled ? esc(filled) : '＋ place skill'}</div>
+      </div>`;
+    }).join('<div class="model-arrow">▼</div>');
+    const chips = g.chips.length
+      ? g.chips.map(i => {
+          const m = MODEL_OF_EMOTIONS[i];
+          return `<button class="match-chip ${g.sel === i ? 'sel' : ''}" data-act="matching-select" data-i="${i}">${esc(m.skillName)}</button>`;
+        }).join('')
+      : '<p class="muted" style="text-align:center">All skills placed.</p>';
+    return `<div class="screen">${top}
+      <div class="model-board">${slots}</div>
+      <div class="match-chips">${chips}</div>
+    </div>`;
+  },
+
+  /* ---------- skills charades ---------- */
+  charadesStart() {
+    this.charades = {
+      deck: this._shuffle(CHARADES_DECK.slice()),
+      idx: 0,
+      score: 0,
+      correct: 0,
+      passed: 0,
+      phase: 'act',
+      started: false,
+      timeLeft: 60,
+      timerId: null,
+      lastResult: null
+    };
+  },
+
+  charadesAct() {
+    const g = this.charades;
+    if (!g || g.phase !== 'act' || g.started) return;
+    g.started = true;
+    g.timeLeft = 60;
+    this.sound('click');
+    g.timerId = setInterval(() => {
+      g.timeLeft--;
+      const fill = document.getElementById('charade-time');
+      const count = document.getElementById('charade-count');
+      if (fill) fill.style.width = Math.max(0, (g.timeLeft / 60) * 100) + '%';
+      if (count) {
+        count.textContent = g.timeLeft + 's';
+        if (g.timeLeft <= 10) count.classList.add('timeup');
+      }
+      if (g.timeLeft <= 0) {
+        clearInterval(g.timerId);
+        g.timerId = null;
+        this.charadesPass(true);
+      }
+    }, 1000);
+  },
+
+  charadesGuessed() {
+    const g = this.charades;
+    if (!g || g.phase !== 'act') return;
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    g.phase = 'reveal';
+    g.lastResult = 'correct';
+    g.correct++;
+    g.score += 10;
+    this.sound('correct');
+    this.toast('✅ Guessed! +10 points', 'teal');
+    this.renderAll();
+  },
+
+  charadesPass(fromTimer) {
+    const g = this.charades;
+    if (!g || g.phase !== 'act') return;
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    g.phase = 'reveal';
+    g.lastResult = fromTimer ? 'timeup' : 'pass';
+    g.passed++;
+    this.sound(fromTimer ? 'wrong' : 'click');
+    if (!fromTimer) this.toast('Passed — no points this round.', '');
+    this.renderAll();
+  },
+
+  charadesNext() {
+    const g = this.charades;
+    if (!g) return;
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    g.idx++;
+    g.phase = 'act';
+    g.started = false;
+    g.timeLeft = 60;
+    this.renderAll();
+  },
+
+  charadesNew() {
+    if (this.charades && this.charades.timerId) clearInterval(this.charades.timerId);
+    this.charadesStart();
+    this.renderAll();
+  },
+
+  renderCharades() {
+    if (!this.charades) this.charadesStart();
+    const g = this.charades;
+    const done = g.idx >= g.deck.length;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🎭 Skill Charades</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.correct}/${g.idx}</b><span>Guessed</span></div>
+        <div class="stat-card"><b>${g.idx}/${g.deck.length}</b><span>Round</span></div>
+      </div>`;
+    if (done) {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 Charades complete!</h3>
+          <p class="muted">${g.correct} guessed · ${g.passed} passed · ${g.score} points.</p>
+          <button class="btn teal" data-act="charades-new" style="margin-top:10px">↺ Play Again (reshuffled)</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const cur = g.deck[g.idx];
+    const pct = g.started ? Math.max(0, (g.timeLeft / 60) * 100) : 100;
+    const actScreen = `<div class="charade-card">
+        <div class="charade-emoji">${cur.emoji}</div>
+        <div class="charade-word">${esc(cur.word)}</div>
+        <span class="charade-type ${cur.type}">${cur.type}</span>
+        <p class="charade-hint">${esc(cur.hint)}</p>
+      </div>
+      <div class="charade-timer">
+        <div class="charade-bar"><div id="charade-time" class="charade-fill" style="width:${pct}%"></div></div>
+        <div class="charade-count ${g.started && g.timeLeft <= 10 ? 'timeup' : ''}" id="charade-count">${g.started ? g.timeLeft + 's' : '60s'}</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+        ${g.started
+          ? `<button class="btn teal" data-act="charades-guessed">✅ Guessed!</button><button class="btn ghost" data-act="charades-pass">❌ Pass</button>`
+          : `<button class="btn gold" data-act="charades-act">▶ Start 60s</button>`}
+      </div>
+      <p class="muted" style="text-align:center;margin-top:10px">${g.started ? 'Act it out — no words! Teammates guess aloud.' : 'Actor: read the card, then start the timer and mime it.'}</p>`;
+    const revealScreen = `<div class="panel" style="text-align:center;padding:28px 20px;margin-top:10px">
+        <div style="font-size:2.6rem">${cur.emoji}</div>
+        <h3>${esc(cur.word)}</h3>
+        <p class="muted" style="font-weight:800">${g.lastResult === 'correct' ? '✅ Guessed! +10' : (g.lastResult === 'timeup' ? '⏰ Time up — it was…' : 'It was…')}</p>
+        <p class="muted">${esc(cur.about)}</p>
+        <button class="btn gold" style="margin-top:12px" data-act="charades-next">${g.idx >= g.deck.length - 1 ? '🏁 Finish' : 'Next →'}</button>
+      </div>`;
+    return `<div class="screen">${top}
+      <div class="model-board">${g.phase === 'act' ? actScreen : revealScreen}</div>
     </div>`;
   },
 
