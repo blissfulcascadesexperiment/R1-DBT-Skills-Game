@@ -609,12 +609,150 @@ footer { text-align: center; color: var(--ink-soft); font-size: .78rem; padding:
 .charade-type.emotion { background: #ffe8ec; color: #c0392b; }
 .charade-type.vulnerability { background: #fff3d6; color: #9a6b00; }
 .charade-type.coping { background: #e3f0ff; color: #1a6fb5; }
+.charade-type.avoidance { background: #efece6; color: #7a6a4f; }
+.charade-type.validation { background: #f0e6ff; color: #6b3fd4; }
+.charade-type.dilemma { background: #e0f7f5; color: #0f8f85; }
+.charade-type.module { background: #fff0e0; color: #b06a2a; }
 .charade-hint { color: var(--ink-soft); font-size: .85rem; margin: 12px 0 0; line-height: 1.5; }
 .charade-timer { margin: 16px 0 0; }
 .charade-bar { height: 12px; background: #f0edff; border-radius: 999px; overflow: hidden; }
 .charade-fill { height: 100%; background: linear-gradient(90deg, #7c5cff, #0f9d8a); border-radius: 999px; transition: width 1s linear; }
 .charade-count { text-align: center; font-weight: 800; font-size: 1.4rem; margin-top: 8px; color: var(--primary); }
 .charade-count.timeup { color: #e24a4a; }
+
+/* ---------- Wheel of Fortune ---------- */
+.wf-layout { display: flex; gap: 22px; align-items: flex-start; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.wf-wheel-side { display: flex; flex-direction: column; align-items: center; }
+.wf-wheel { position: relative; width: 320px; height: 320px; border-radius: 50%; box-shadow: 0 8px 26px rgba(43, 36, 64, 0.22); cursor: pointer; overflow: hidden; user-select: none; }
+.wf-wheel svg { width: 100%; height: 100%; display: block; }
+.wf-pointer { position: relative; z-index: 2; width: 0; height: 0; margin: 0 auto -8px; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #20242e; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+.wf-board-side { flex: 1 1 340px; max-width: 560px; min-width: 280px; }
+.wf-category { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.wf-msg { font-weight: 700; color: var(--ink); font-size: .95rem; }
+.wf-puzzle { background: linear-gradient(180deg, #20242e, #2a2f40); border-radius: var(--radius); padding: 14px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; min-height: 100px; align-items: center; }
+.wf-tile { width: 34px; height: 42px; background: #fff; color: var(--ink); border-radius: 7px; font-weight: 800; font-size: 1.25rem; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 0 rgba(0,0,0,.18); }
+.wf-tile.hid { background: #4a5064; }
+.wf-tile.gap { background: #39404f; color: #fff; box-shadow: none; width: auto; padding: 0 4px; font-size: 1rem; }
+.wf-tile.wordgap { background: transparent; box-shadow: none; width: 14px; }
+.wf-tile.ok { animation: wf-pop .3s ease; }
+@keyframes wf-pop { 0% { transform: scale(.4); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.wf-spinval { text-align: center; font-weight: 800; min-height: 26px; margin-top: 10px; color: var(--teal-dark, #0f9d8a); }
+.wf-letters { margin-top: 12px; }
+.wf-row, .wf-vowels { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.wf-vowels { margin-top: 10px; align-items: center; }
+.wf-vlabel { font-size: .78rem; color: var(--ink-soft); font-weight: 700; margin-right: 4px; }
+.wf-letter { width: 34px; height: 40px; border-radius: 8px; border: 1px solid #e5e2ee; background: #fff; font-weight: 700; font-size: 1rem; color: var(--ink); cursor: pointer; }
+.wf-letter:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.wf-letter:disabled { opacity: .4; cursor: default; }
+.wf-letter.ok { background: #d8f7f2; border-color: var(--teal); color: #0f9d8a; }
+.wf-letter.miss { background: #fde8ec; border-color: var(--rose); color: #e24a4a; text-decoration: line-through; }
+.wf-letter.vowel { border-color: var(--gold); color: #b8860b; }
+.wf-solve { display: flex; gap: 8px; margin-top: 14px; }
+.wf-solve-input { flex: 1; border: 1px solid #e5e2ee; border-radius: 10px; padding: 10px 12px; font-size: 1rem; background: #fff; color: var(--ink); }
+.wf-solve-input:focus { outline: none; border-color: var(--primary); }
+@media (max-width: 640px) {
+  .wf-wheel { width: 260px; height: 260px; }
+  .wf-tile { width: 28px; height: 36px; font-size: 1rem; }
+}
+
+/* ---------- DBT Pictionary ---------- */
+.pic-play { display: grid; gap: 12px; }
+.pic-top { text-align: center; }
+.pic-word { font-size: 1.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.pic-hint { background: #fff; border: 2px dashed #cfc4f5; border-radius: var(--radius); padding: 14px; color: var(--ink-soft); line-height: 1.5; font-size: .95rem; }
+.pic-board { background: #fff; border: 2px solid #ece9f6; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.pic-canvas { display: block; width: 100%; height: 420px; touch-action: none; cursor: crosshair; background: #fff; }
+.pic-timer { max-width: 420px; margin: 10px auto 0; }
+.pic-bar { height: 12px; background: #f0edff; border-radius: 999px; overflow: hidden; }
+.pic-fill { height: 100%; background: linear-gradient(90deg, #7c5cff, #0f9d8a); border-radius: 999px; transition: width 1s linear; }
+.pic-count { font-weight: 800; font-size: 1.4rem; margin-top: 8px; color: var(--primary); }
+.pic-count.timeup { color: #e24a4a; }
+.pic-tools { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; align-items: center; }
+.pic-swatch { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff; box-shadow: var(--shadow-sm); cursor: pointer; }
+.pic-swatch:hover { transform: scale(1.1); }
+.pic-swatch.sel { box-shadow: 0 0 0 3px var(--primary), var(--shadow-sm); }
+.pic-div { width: 2px; height: 24px; background: #e5e2ee; margin: 0 2px; }
+.pic-toolbtn { width: 36px; height: 36px; border-radius: 10px; background: #fff; border: 2px solid #ece9f6; font-weight: 800; color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: .85rem; }
+.pic-toolbtn:hover { border-color: var(--primary); }
+.pic-toolbtn.sel { background: var(--primary); border-color: var(--primary); color: #fff; }
+.pic-toolbtn:disabled { opacity: .4; cursor: default; }
+.pic-reveal { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+@media (max-width: 640px) { .pic-canvas { height: 300px; } }
+
+/* ---------- Skill Detective ---------- */
+.detective-scene { margin-top: 14px; }
+.detective-case { font-size: .8rem; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .5px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.detective-story { font-size: 1.05rem; line-height: 1.7; }
+.detective-q { font-weight: 800; margin-top: 14px; color: var(--primary-dark); font-size: 1rem; }
+
+/* ---------- Mindfulness Memory Match ---------- */
+.mem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 560px; margin: 0 auto; }
+.mem-card {
+  aspect-ratio: 1 / 1; border-radius: var(--radius); border: 2px solid #ece9f6; background: #fff;
+  display: grid; place-items: center; font-size: .95rem; font-weight: 800; color: var(--ink);
+  box-shadow: var(--shadow-sm); cursor: pointer; transition: all .12s ease; padding: 8px; text-align: center;
+  font-family: 'Baloo 2', sans-serif; line-height: 1.2; flex-direction: column; gap: 2px;
+}
+.mem-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+.mem-card.up { border-color: var(--primary); background: #f6f3ff; }
+.mem-back { font-size: 1.6rem; color: var(--primary); }
+.mem-front-emoji { font-size: 2rem; }
+.mem-front-skill { font-size: .78rem; }
+.mem-front-skill.big { font-size: .95rem; }
+@media (max-width: 480px) { .mem-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ---------- Deep Breathing Balloon ---------- */
+.breath-stage {
+  position: relative; margin: 22px auto 0; width: 300px; height: 320px;
+  display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #eefbf8, #eef2ff);
+  border-radius: 50%; box-shadow: inset 0 0 40px rgba(52,209,191,.18);
+}
+.breath-balloon { width: 220px; height: 220px; display: grid; place-items: center; }
+.breath-ball {
+  width: 170px; height: 170px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fff, #ffb833 58%, #f0982a);
+  box-shadow: 0 14px 40px rgba(255,184,51,.45), inset -10px -14px 24px rgba(150,90,0,.18);
+  display: grid; place-items: center; font-size: 3.4rem;
+  animation: breathCycle 16s ease-in-out infinite;
+}
+.breath-labels { position: absolute; inset: 0; display: grid; place-items: center; }
+.breath-label { position: absolute; font-weight: 800; font-size: 1.5rem; color: var(--primary-dark); font-family: 'Baloo 2', sans-serif; opacity: 0; }
+@keyframes breathCycle {
+  0% { transform: scale(.5); }
+  25% { transform: scale(1); }
+  50% { transform: scale(1); }
+  87.5% { transform: scale(.5); }
+  100% { transform: scale(.5); }
+}
+@keyframes phIn { 0% { opacity: 0; } 3% { opacity: 1; } 23% { opacity: 1; } 28% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes phHold { 0%, 24% { opacity: 0; } 27% { opacity: 1; } 47% { opacity: 1; } 52% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes phOut { 0%, 49% { opacity: 0; } 52% { opacity: 1; } 84% { opacity: 1; } 90% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes phRest { 0%, 84% { opacity: 0; } 87% { opacity: 1; } 97% { opacity: 1; } 100% { opacity: 0; } }
+.breath-meta { text-align: center; margin-top: 14px; }
+.breath-cycles { font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.3rem; color: var(--primary); }
+@media (max-width: 480px) { .breath-stage { width: 240px; height: 260px; } .breath-ball { width: 140px; height: 140px; } }
+
+/* ---------- Chain Analysis Puzzle ---------- */
+.chain-puzzle { margin-top: 14px; }
+.chain-built { display: grid; gap: 8px; margin-top: 14px; }
+.chain-link {
+  border-radius: 12px; padding: 12px 16px; font-size: .94rem; line-height: 1.45; font-weight: 700;
+  border: 2px solid #ece9f6; background: #fff; color: var(--ink); text-align: left; font-family: 'Nunito', sans-serif;
+}
+.chain-link.placed { border-color: #7ee0b8; background: #e8fbf2; color: #0f7a5a; }
+.chain-link.next { border-style: dashed; border-color: var(--primary); background: #f6f3ff; color: var(--primary-dark); text-align: center; }
+.chain-link.opt { cursor: pointer; transition: all .12s ease; width: 100%; }
+.chain-link.opt:hover { border-color: var(--primary); background: #f6f3ff; transform: translateY(-2px); }
+.chain-options { display: grid; gap: 8px; margin-top: 14px; }
+.chain-options.shake { animation: shake .4s ease; }
+.chain-fix { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #fff8ec; color: #a06a00; font-size: .9rem; line-height: 1.5; }
+
+/* ---------- Rapid-Fire Flashcards ---------- */
+.flash-timer { max-width: 420px; margin: 0 auto; }
+.flash-bar { height: 12px; background: #f0edff; border-radius: 999px; overflow: hidden; }
+.flash-bar div { height: 100%; background: linear-gradient(90deg, #7c5cff, #0f9d8a); border-radius: 999px; transition: width 1s linear; }
+.flash-count { text-align: center; font-weight: 800; font-size: 1.4rem; margin-top: 8px; color: var(--primary); }
+.flash-count.timeup { color: #e24a4a; }
 
 /* ---------- Print: clean worksheet copies ---------- */
 @media print {

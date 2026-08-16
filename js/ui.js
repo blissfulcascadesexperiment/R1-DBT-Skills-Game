@@ -21,7 +21,7 @@ const UI = {
     const viewFromHash = (location.hash || '').replace(/^#\/?/, '');
     if (viewFromHash === 'movies' || viewFromHash.indexOf('movies/') === 0) {
       this.show('movies', { page: viewFromHash.split('/')[1] || 'orientation' });
-    } else if (viewFromHash && ['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(viewFromHash)) {
+    } else if (viewFromHash && ['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades', 'wheel', 'pictionary', 'detective', 'memory', 'breathing', 'chain', 'flashcards'].includes(viewFromHash)) {
       this.show(viewFromHash);
     } else if (saved) {
       this.show('map');
@@ -32,7 +32,7 @@ const UI = {
     window.addEventListener('hashchange', () => {
       const v = (location.hash || '').replace(/^#\/?/, '');
       if (v === 'movies' || v.indexOf('movies/') === 0) { this.show('movies', { page: v.split('/')[1] || 'orientation' }); return; }
-      if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(v)) this.show(v);
+      if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades', 'wheel', 'pictionary', 'detective', 'memory', 'breathing', 'chain', 'flashcards'].includes(v)) this.show(v);
     });
   },
 
@@ -278,11 +278,45 @@ const UI = {
       case 'matching-select': this.matchingSelect(+data.i); this.renderAll(); break;
       case 'matching-place': this.matchingPlace(+data.i); this.renderAll(); break;
       case 'matching-new': this.matchingStart(); this.renderAll(); break;
-      case 'charades-act': this.charadesAct(); this.renderAll(); break;
-      case 'charades-guessed': this.charadesGuessed(); break;
-      case 'charades-pass': this.charadesPass(false); break;
-      case 'charades-next': this.charadesNext(); break;
+      case 'charades-start': this.charadesStartRound(); break;
+      case 'charades-got': this.charadesAdvance(true); break;
+      case 'charades-skip': this.charadesAdvance(false); break;
       case 'charades-new': this.charadesNew(); break;
+      case 'wheel-start': this.wheelStartRound(); break;
+      case 'wheel-spin': this.wheelSpin(); break;
+      case 'wheel-letter': this.wheelLetter(data.l); break;
+      case 'wheel-vowel': this.wheelVowel(data.l); break;
+      case 'wheel-solve': this.wheelSolve(); break;
+      case 'wheel-new': this.wheelNewGame(); break;
+      case 'pictionary-start': this.pictionaryStartRound(); break;
+      case 'pictionary-peek': this.pictionaryPeek(); break;
+      case 'pictionary-correct': this.pictionaryCorrect(); break;
+      case 'pictionary-pass': this.pictionaryPass(); break;
+      case 'pictionary-next': this.pictionaryNext(); break;
+      case 'pictionary-new': this.pictionaryNewGame(); break;
+      case 'pictionary-color': if (this.pictionary) { this.pictionary.color = data.c; this.renderAll(); } break;
+      case 'pictionary-tool': if (this.pictionary) { this.pictionary.tool = data.t; this.renderAll(); } break;
+      case 'pictionary-width': if (this.pictionary) { this.pictionary.width = +data.w; this.renderAll(); } break;
+      case 'pictionary-undo': this.pictionaryUndo(); break;
+      case 'pictionary-clear': this.pictionaryClear(); break;
+      case 'detective-start': this.detectiveBegin(); break;
+      case 'detective-answer': this.detectiveAnswer(+data.i); break;
+      case 'detective-next': this.detectiveNext(); break;
+      case 'detective-new': this.detectiveNew(); break;
+      case 'memory-start': this.memoryStart(); this.renderAll(); break;
+      case 'memory-flip': this.memoryFlip(+data.i); break;
+      case 'memory-new': this.memoryNew(); break;
+      case 'breath-start': this.breathBegin(); break;
+      case 'breath-stop': this.breathStop(); break;
+      case 'breath-new': this.breathNew(); break;
+      case 'chain-start': this.chainBegin(); break;
+      case 'chain-pick': this.chainPick(+data.i); break;
+      case 'chain-next': this.chainNext(); break;
+      case 'chain-new': this.chainNew(); break;
+      case 'flash-start': this.flashBegin(); break;
+      case 'flash-answer': this.flashAnswer(+data.i); break;
+      case 'flash-next': this.flashNext(); break;
+      case 'flash-new': this.flashNew(); break;
       case 'badges': this.show('badges'); break;
       case 'movies': this.show('movies', { page: data.page || 'orientation' }); break;
       case 'quiz-start': this.startQuiz(); break;
@@ -309,6 +343,26 @@ const UI = {
       clearInterval(this.charades.timerId);
       this.charades.timerId = null;
     }
+    if (view !== 'wheel' && this.wheel && this.wheel.timerId) {
+      clearTimeout(this.wheel.timerId);
+      this.wheel.timerId = null;
+    }
+    if (view !== 'pictionary' && this.pictionary && this.pictionary.timerId) {
+      clearInterval(this.pictionary.timerId);
+      this.pictionary.timerId = null;
+    }
+    if (view !== 'breathing' && this.breath && this.breath.timerId) {
+      clearInterval(this.breath.timerId);
+      this.breath.timerId = null;
+    }
+    if (view !== 'flashcards' && this.flash && this.flash.timerId) {
+      clearInterval(this.flash.timerId);
+      this.flash.timerId = null;
+    }
+    if (view !== 'memory' && this.memory && this.memory.timerId) {
+      clearTimeout(this.memory.timerId);
+      this.memory.timerId = null;
+    }
     if (view === 'wordsearch') this.wordSearchStart();
     this.view = view;
     this.params = Object.assign({}, this.params || {}, params || {});
@@ -317,7 +371,7 @@ const UI = {
     window.scrollTo(0, 0);
     if (view === 'movies') {
       try { history.replaceState(null, '', '#/movies/' + (this.params.page || 'orientation')); } catch (e) {}
-    } else if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades'].includes(view)) {
+    } else if (['map', 'coach', 'worksheets', 'badges', 'closet', 'quiz', 'dilemmas', 'validation', 'games', 'jeopardy', 'scramble', 'wordsearch', 'crossword', 'matching', 'charades', 'wheel', 'pictionary', 'detective', 'memory', 'breathing', 'chain', 'flashcards'].includes(view)) {
       try { history.replaceState(null, '', '#/' + view); } catch (e) {}
     }
   },
@@ -346,6 +400,13 @@ const UI = {
       case 'crossword': body = this.renderCrossword(); break;
       case 'matching': body = this.renderMatching(); break;
       case 'charades': body = this.renderCharades(); break;
+      case 'wheel': body = this.renderWheel(); break;
+      case 'pictionary': body = this.renderPictionary(); break;
+      case 'detective': body = this.renderDetective(); break;
+      case 'memory': body = this.renderMemory(); break;
+      case 'breathing': body = this.renderBreathing(); break;
+      case 'chain': body = this.renderChain(); break;
+      case 'flashcards': body = this.renderFlashcards(); break;
       case 'badges': body = this.renderBadges(); break;
       case 'closet': body = this.renderCloset(); break;
       default: body = this.renderMap();
@@ -354,6 +415,7 @@ const UI = {
     this.initVideoFallbacks(app);
     if (this.view === 'wordsearch') this.initWordSearch(app);
     if (this.view === 'crossword') this.initCrossword(app);
+    if (this.view === 'pictionary') this.initPictionary(app);
   },
 
   renderHUD() {
@@ -1146,6 +1208,41 @@ const UI = {
       this.show('charades');
       return;
     }
+    if (id === 'wheel-of-fortune') {
+      this.wheelStart();
+      this.show('wheel');
+      return;
+    }
+    if (id === 'pictionary') {
+      this.pictionaryStart();
+      this.show('pictionary');
+      return;
+    }
+    if (id === 'skill-detective') {
+      this.detectiveStart();
+      this.show('detective');
+      return;
+    }
+    if (id === 'memory-match') {
+      this.memoryStart();
+      this.show('memory');
+      return;
+    }
+    if (id === 'deep-breathing') {
+      this.breathStart();
+      this.show('breathing');
+      return;
+    }
+    if (id === 'chain-analysis') {
+      this.chainStart();
+      this.show('chain');
+      return;
+    }
+    if (id === 'flashcards') {
+      this.flashStart();
+      this.show('flashcards');
+      return;
+    }
     this.toast('🛠️ That game is in the works — coming soon.', '');
   },
 
@@ -1919,33 +2016,32 @@ const UI = {
     </div>`;
   },
 
-  /* ---------- skills charades ---------- */
+  /* ---------- taboo / heads up ---------- */
   charadesStart() {
     this.charades = {
       deck: this._shuffle(CHARADES_DECK.slice()),
       idx: 0,
       score: 0,
-      correct: 0,
-      passed: 0,
-      phase: 'act',
-      started: false,
-      timeLeft: 60,
-      timerId: null,
-      lastResult: null
+      skipped: 0,
+      cleared: false,
+      phase: 'ready',
+      timeLeft: 90,
+      timerId: null
     };
   },
 
-  charadesAct() {
+  charadesStartRound() {
     const g = this.charades;
-    if (!g || g.phase !== 'act' || g.started) return;
-    g.started = true;
-    g.timeLeft = 60;
+    if (!g || g.phase !== 'ready') return;
+    g.phase = 'play';
+    g.timeLeft = 90;
     this.sound('click');
+    this.renderAll();
     g.timerId = setInterval(() => {
       g.timeLeft--;
       const fill = document.getElementById('charade-time');
       const count = document.getElementById('charade-count');
-      if (fill) fill.style.width = Math.max(0, (g.timeLeft / 60) * 100) + '%';
+      if (fill) fill.style.width = Math.max(0, (g.timeLeft / 90) * 100) + '%';
       if (count) {
         count.textContent = g.timeLeft + 's';
         if (g.timeLeft <= 10) count.classList.add('timeup');
@@ -1953,44 +2049,33 @@ const UI = {
       if (g.timeLeft <= 0) {
         clearInterval(g.timerId);
         g.timerId = null;
-        this.charadesPass(true);
+        this.charadesEnd();
       }
     }, 1000);
   },
 
-  charadesGuessed() {
+  charadesAdvance(guessed) {
     const g = this.charades;
-    if (!g || g.phase !== 'act') return;
-    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
-    g.phase = 'reveal';
-    g.lastResult = 'correct';
-    g.correct++;
-    g.score += 10;
-    this.sound('correct');
-    this.toast('✅ Guessed! +10 points', 'teal');
+    if (!g || g.phase !== 'play') return;
+    if (guessed) { g.score++; this.sound('correct'); }
+    else { g.skipped++; this.sound('click'); }
+    if (g.idx + 1 >= g.deck.length) {
+      if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+      g.cleared = true;
+      g.phase = 'over';
+      this.toast('🏆 You cleared the whole deck!', 'gold');
+      setTimeout(() => this.confetti(), 150);
+    } else {
+      g.idx++;
+    }
     this.renderAll();
   },
 
-  charadesPass(fromTimer) {
+  charadesEnd() {
     const g = this.charades;
-    if (!g || g.phase !== 'act') return;
-    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
-    g.phase = 'reveal';
-    g.lastResult = fromTimer ? 'timeup' : 'pass';
-    g.passed++;
-    this.sound(fromTimer ? 'wrong' : 'click');
-    if (!fromTimer) this.toast('Passed — no points this round.', '');
-    this.renderAll();
-  },
-
-  charadesNext() {
-    const g = this.charades;
-    if (!g) return;
-    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
-    g.idx++;
-    g.phase = 'act';
-    g.started = false;
-    g.timeLeft = 60;
+    if (!g || g.phase !== 'play') return;
+    g.phase = 'over';
+    this.sound('badge');
     this.renderAll();
   },
 
@@ -2003,51 +2088,1165 @@ const UI = {
   renderCharades() {
     if (!this.charades) this.charadesStart();
     const g = this.charades;
-    const done = g.idx >= g.deck.length;
-    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🎭 Skill Charades</h2></div>
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🎤 Taboo/Heads Up</h2></div>
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
-        <div class="stat-card"><b>${g.correct}/${g.idx}</b><span>Guessed</span></div>
-        <div class="stat-card"><b>${g.idx}/${g.deck.length}</b><span>Round</span></div>
+        <div class="stat-card"><b>${g.score}</b><span>Guessed</span></div>
+        <div class="stat-card"><b>${g.skipped}</b><span>Skipped</span></div>
+        <div class="stat-card"><b>${g.phase === 'play' ? g.timeLeft + 's' : '1:30'}</b><span>Timer</span></div>
       </div>`;
-    if (done) {
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">🎤</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            Pick one player to be the <b>guesser</b> — they can't see the screen.<br>
+            Everyone else reads the word on the card and gives <b>clues</b> to help the guesser name it.<br>
+            No saying the word itself, and no mouthing it!<br>
+            The guesser calls out answers. Tap <b>✔ Got it!</b> when they guess the word, or <b>✕ Skip</b> to move on.<br>
+            You have <b>one minute and thirty seconds</b> to guess as many words as you can.
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="charades-start">▶ Start 1:30</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
       return `<div class="screen">${top}
         <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
-          <h3>🏆 Charades complete!</h3>
-          <p class="muted">${g.correct} guessed · ${g.passed} passed · ${g.score} points.</p>
+          <h3>${g.cleared ? '🏆 Deck cleared!' : "⏰ Time's up!"}</h3>
+          <p class="muted">You guessed <b>${g.score}</b> words${g.skipped ? ` and skipped ${g.skipped}` : ''} in one minute and thirty seconds.</p>
           <button class="btn teal" data-act="charades-new" style="margin-top:10px">↺ Play Again (reshuffled)</button>
           <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
         </div>
       </div>`;
     }
     const cur = g.deck[g.idx];
-    const pct = g.started ? Math.max(0, (g.timeLeft / 60) * 100) : 100;
-    const actScreen = `<div class="charade-card">
+    const pct = Math.max(0, (g.timeLeft / 90) * 100);
+    return `<div class="screen">${top}
+      <div class="charade-card">
         <div class="charade-emoji">${cur.emoji}</div>
         <div class="charade-word">${esc(cur.word)}</div>
         <span class="charade-type ${cur.type}">${cur.type}</span>
-        <p class="charade-hint">${esc(cur.hint)}</p>
       </div>
       <div class="charade-timer">
         <div class="charade-bar"><div id="charade-time" class="charade-fill" style="width:${pct}%"></div></div>
-        <div class="charade-count ${g.started && g.timeLeft <= 10 ? 'timeup' : ''}" id="charade-count">${g.started ? g.timeLeft + 's' : '60s'}</div>
+        <div class="charade-count ${g.timeLeft <= 10 ? 'timeup' : ''}" id="charade-count">${g.timeLeft}s</div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-        ${g.started
-          ? `<button class="btn teal" data-act="charades-guessed">✅ Guessed!</button><button class="btn ghost" data-act="charades-pass">❌ Pass</button>`
-          : `<button class="btn gold" data-act="charades-act">▶ Start 60s</button>`}
+        <button class="btn teal" data-act="charades-got">✔ Got it!</button>
+        <button class="btn ghost" data-act="charades-skip">✕ Skip</button>
       </div>
-      <p class="muted" style="text-align:center;margin-top:10px">${g.started ? 'Act it out — no words! Teammates guess aloud.' : 'Actor: read the card, then start the timer and mime it.'}</p>`;
-    const revealScreen = `<div class="panel" style="text-align:center;padding:28px 20px;margin-top:10px">
-        <div style="font-size:2.6rem">${cur.emoji}</div>
-        <h3>${esc(cur.word)}</h3>
-        <p class="muted" style="font-weight:800">${g.lastResult === 'correct' ? '✅ Guessed! +10' : (g.lastResult === 'timeup' ? '⏰ Time up — it was…' : 'It was…')}</p>
-        <p class="muted">${esc(cur.about)}</p>
-        <button class="btn gold" style="margin-top:12px" data-act="charades-next">${g.idx >= g.deck.length - 1 ? '🏁 Finish' : 'Next →'}</button>
+      <p class="muted" style="text-align:center;margin-top:10px">Clue-givers read the word — the guesser looks away!</p>`;
+  },
+
+  /* ---------- wheel of fortune ---------- */
+  wheelStart() {
+    this.wheel = {
+      phase: 'ready',
+      round: 1,
+      score: 0,
+      bank: 0,
+      pool: this._shuffle(WHEEL_PUZZLES.slice()),
+      cur: null,
+      timerId: null
+    };
+  },
+
+  wheelNewGame() {
+    this.wheelStart();
+    this.wheelStartRound();
+  },
+
+  wheelStartRound() {
+    const g = this.wheel;
+    if (!g) return;
+    g.phase = 'play';
+    this.wheelNewRound();
+    this.sound('click');
+    this.renderAll();
+  },
+
+  wheelNewRound() {
+    const g = this.wheel;
+    const p = g.pool[g.round - 1] || g.pool[g.pool.length - 1];
+    const letters = p.phrase.replace(/[^A-Z]/g, '');
+    g.cur = {
+      phrase: p.phrase.toUpperCase(),
+      category: p.category,
+      solved: {},
+      guessed: {},
+      spinVal: 0,
+      spinState: 'idle',
+      total: letters.length,
+      remaining: letters.length,
+      msg: 'Spin the wheel to start round ' + g.round + '.'
+    };
+    g.bank = 0;
+  },
+
+  wheelDisc() {
+    const R = 100, n = WHEEL_SEGMENTS.length, step = 360 / n;
+    const colors = ['#7c5cff', '#34d1bf', '#ffb833', '#ff6b8a', '#4aa8ff', '#34c77b', '#ff9f6b', '#8a6bd6', '#4ad0d0', '#f0c95f'];
+    let paths = '', labels = '';
+    WHEEL_SEGMENTS.forEach((v, i) => {
+      const a0 = i * step, a1 = (i + 1) * step;
+      const p0x = R * Math.sin(a0 * Math.PI / 180), p0y = -R * Math.cos(a0 * Math.PI / 180);
+      const p1x = R * Math.sin(a1 * Math.PI / 180), p1y = -R * Math.cos(a1 * Math.PI / 180);
+      const col = v === 'BANKRUPT' ? '#ef4f4f' : v === 'LOSE' ? '#3a3f4b' : colors[i % colors.length];
+      const mid = i * step + step / 2;
+      const long = (v === 'BANKRUPT' || v === 'LOSE');
+      const r = long ? 55 : 62;
+      paths += `<path d="M0 0 L${p0x.toFixed(2)} ${p0y.toFixed(2)} A${R} ${R} 0 0 1 ${p1x.toFixed(2)} ${p1y.toFixed(2)} Z" fill="${col}"/>`;
+      labels += `<g transform="rotate(${mid})"><text x="0" y="${-r}" text-anchor="middle" fill="#fff" font-size="${long ? 11 : 13}" font-weight="800"${long ? ' transform="rotate(90)"' : ''}>${v === 'BANKRUPT' ? 'BANKRUPT' : v === 'LOSE' ? 'LOSE' : '$' + v}</text></g>`;
+    });
+    return `<svg class="wf-svg" viewBox="-112 -112 224 224">${paths}${labels}<circle r="34" fill="#20242e"/><circle r="26" fill="#fdf6ec"/></svg>`;
+  },
+
+  wheelSpin() {
+    const g = this.wheel, c = g.cur;
+    if (!g || g.phase !== 'play' || !c || c.spinState === 'spinning') return;
+    const el = document.getElementById('wheel-disc');
+    if (!el) return;
+    const n = WHEEL_SEGMENTS.length, step = 360 / n;
+    const target = Math.floor(Math.random() * n);
+    const lastRot = c._lastRot || 0;
+    const newRot = lastRot + 360 * 5 + (360 - (target * step + step / 2)) % 360;
+    c._lastRot = newRot;
+    c.spinState = 'spinning';
+    c.spinVal = 0;
+    c.msg = 'Spinning the wheel…';
+    el.style.transition = 'none';
+    el.style.transform = 'rotate(' + lastRot + 'deg)';
+    void el.offsetWidth;
+    el.style.transition = 'transform 4.3s cubic-bezier(.15,.7,.18,1)';
+    el.style.transform = 'rotate(' + newRot + 'deg)';
+    this.sound('click');
+    this.renderAll();
+    if (g.timerId) clearTimeout(g.timerId);
+    g.timerId = setTimeout(() => this.wheelLand(target), 4400);
+  },
+
+  wheelLand(i) {
+    const g = this.wheel, c = g.cur;
+    if (!g || g.phase !== 'play' || !c) return;
+    const v = WHEEL_SEGMENTS[i];
+    if (typeof v === 'number') {
+      c.spinVal = v;
+      c.spinState = 'ready';
+      c.msg = '$' + v.toLocaleString() + ' — pick a consonant (or buy a vowel).';
+      this.sound('click');
+    } else if (v === 'BANKRUPT') {
+      g.bank = 0;
+      c.spinVal = 0;
+      c.spinState = 'bankrupt';
+      c.msg = '💥 BANKRUPT! Round bank gone — spin again.';
+      this.sound('wrong');
+    } else {
+      c.spinVal = 0;
+      c.spinState = 'lose';
+      c.msg = '😵 Lose a turn — spin again.';
+      this.sound('wrong');
+    }
+    this.renderAll();
+  },
+
+  wheelLetter(l) {
+    const g = this.wheel, c = g.cur;
+    if (!c || g.phase !== 'play') return;
+    if (c.spinState !== 'ready') { this.toast('Spin the wheel first!', ''); return; }
+    if (c.guessed[l]) { this.toast(l + ' has already been guessed.', ''); return; }
+    const count = c.phrase.split('').filter(ch => ch === l).length;
+    if (count > 0) {
+      const gained = c.spinVal * count;
+      c.solved[l] = true;
+      c.guessed[l] = 'ok';
+      c.remaining -= count;
+      g.bank += gained;
+      c.msg = '✔ ' + l + ' ×' + count + '  +$' + gained.toLocaleString() + ' — spin again!';
+      this.sound('correct');
+      if (c.remaining === 0) { this.wheelSolved(); return; }
+    } else {
+      c.guessed[l] = 'miss';
+      c.msg = '✖ No ' + l + ' — turn passes.';
+      this.sound('wrong');
+    }
+    c.spinVal = 0;
+    c.spinState = 'idle';
+    this.renderAll();
+  },
+
+  wheelVowel(l) {
+    const g = this.wheel, c = g.cur;
+    if (!c || g.phase !== 'play') return;
+    if (c.spinState !== 'ready') { this.toast('Spin the wheel first!', ''); return; }
+    if (c.guessed[l]) { this.toast(l + ' has already been guessed.', ''); return; }
+    if (g.bank < 250) { this.toast('Vowels cost $250 — spin for more points first.', ''); return; }
+    g.bank -= 250;
+    const count = c.phrase.split('').filter(ch => ch === l).length;
+    if (count > 0) {
+      c.solved[l] = true;
+      c.guessed[l] = 'ok';
+      c.remaining -= count;
+      c.msg = '✔ ' + l + ' ×' + count + ' found — spin again or solve.';
+      this.sound('correct');
+      if (c.remaining === 0) { this.wheelSolved(); return; }
+    } else {
+      c.guessed[l] = 'miss';
+      c.msg = '✖ No ' + l + ' — $250 gone, turn passes.';
+      this.sound('wrong');
+    }
+    c.spinVal = 0;
+    c.spinState = 'idle';
+    this.renderAll();
+  },
+
+  wheelSolve() {
+    const g = this.wheel, c = g.cur;
+    if (!c || g.phase !== 'play') return;
+    const input = document.getElementById('wheel-solve');
+    const guess = (input ? input.value : '').trim().toUpperCase().replace(/\s+/g, ' ');
+    if (!guess) return;
+    if (input) input.value = '';
+    if (guess === c.phrase) {
+      this.wheelSolved();
+    } else {
+      c.msg = '✖ "' + esc(guess) + '" is not the puzzle — turn passes.';
+      c.spinVal = 0;
+      c.spinState = 'idle';
+      this.sound('wrong');
+      this.renderAll();
+    }
+  },
+
+  wheelSolved() {
+    const g = this.wheel;
+    const added = g.bank;
+    g.score += added;
+    g.bank = 0;
+    this.sound('badge');
+    if (g.round >= 3) {
+      g.phase = 'over';
+      setTimeout(() => this.confetti(), 150);
+    } else {
+      g.round++;
+      this.wheelNewRound();
+      this.toast('🎉 Solved! +$' + added.toLocaleString(), 'gold');
+    }
+    this.renderAll();
+  },
+
+  wheelLetterBtn(ch, c, isVowel) {
+    const st = c.guessed[ch];
+    let disabled = st || c.spinState === 'spinning' || c.spinState !== 'ready';
+    let cls = 'wf-letter';
+    let title = '';
+    if (st === 'ok') { cls += ' ok'; disabled = true; }
+    else if (st === 'miss') { cls += ' miss'; disabled = true; }
+    if (isVowel) {
+      cls += ' vowel';
+      if (this.wheel.bank < 250) { disabled = true; title = 'Vowels cost $250'; }
+    }
+    return `<button class="${cls}" data-act="${isVowel ? 'wheel-vowel' : 'wheel-letter'}" data-l="${ch}" ${disabled ? 'disabled' : ''} title="${title}">${ch}</button>`;
+  },
+
+  renderWheel() {
+    if (!this.wheel) this.wheelStart();
+    const g = this.wheel;
+    const c = g.cur;
+    if (g.phase === 'play' && c && c.spinState === 'spinning' && !g.timerId) {
+      c.spinState = 'idle';
+      c.msg = 'Spin again!';
+    }
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🎡 DBT Wheel of Fortune</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score.toLocaleString()}</b><span>Score</span></div>
+        <div class="stat-card"><b>$${g.bank.toLocaleString()}</b><span>Round bank</span></div>
+        <div class="stat-card"><b>${g.round}/3</b><span>Round</span></div>
       </div>`;
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">🎡</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            Spin the wheel to win a value, then guess a <b>consonant</b>.<br>
+            Every time the letter is in the puzzle, you bank the value × how many times it appears.<br>
+            Land on <b>BANKRUPT</b> and the round bank is gone — <b>LOSE</b> passes your turn.<br>
+            Buy a <b>vowel</b> for $250 once you have points banked.<br>
+            Solve the puzzle to bank the round. Three solved puzzles wins the game!
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="wheel-start">▶ Spin into Round 1</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🎉 Three puzzles solved!</h3>
+          <p class="muted">Total winnings: <b>$${g.score.toLocaleString()}</b></p>
+          <button class="btn teal" data-act="wheel-new" style="margin-top:10px">↺ Play Again</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    if (!c) { this.wheelNewRound(); return this.renderWheel(); }
+    const tiles = [...c.phrase].map(ch => {
+      if (ch === ' ') return '<span class="wf-tile wordgap"></span>';
+      if (!/[A-Z]/.test(ch)) return `<span class="wf-tile gap">${ch}</span>`;
+      const show = c.solved[ch];
+      return `<span class="wf-tile ${show ? 'ok' : 'hid'}">${show ? ch : ''}</span>`;
+    }).join('');
+    const spinLabel = c.spinState === 'spinning'
+      ? 'Spinning…'
+      : (typeof c.spinVal === 'number' && c.spinVal ? '$' + c.spinVal.toLocaleString() : (c.spinState === 'bankrupt' ? '💥 BANKRUPT' : c.spinState === 'lose' ? '😵 Lose a turn' : ''));
+    const consonants = 'BCDFGHJKLMNPQRSTVWXYZ'.split('');
     return `<div class="screen">${top}
-      <div class="model-board">${g.phase === 'act' ? actScreen : revealScreen}</div>
+      <div class="wf-layout">
+        <div class="wf-wheel-side">
+          <div class="wf-pointer"></div>
+          <div class="wf-wheel" data-act="wheel-spin" id="wheel-disc">${this.wheelDisc()}</div>
+          <button class="btn gold" data-act="wheel-spin" style="margin-top:12px" ${c.spinState === 'spinning' ? 'disabled' : ''}>🎡 Spin</button>
+        </div>
+        <div class="wf-board-side">
+          <div class="wf-category"><span class="skill-tag video">${esc(c.category)}</span>${c.msg ? '<span class="wf-msg">' + esc(c.msg) + '</span>' : ''}</div>
+          <div class="wf-puzzle">${tiles}</div>
+          <div class="wf-spinval ${c.spinVal ? 'show' : ''}">${spinLabel}</div>
+          <div class="wf-letters">
+            <div class="wf-row">${consonants.map(ch => this.wheelLetterBtn(ch, c, false)).join('')}</div>
+            <div class="wf-vowels"><span class="wf-vlabel">Vowels · $250</span>${['A', 'E', 'I', 'O', 'U'].map(ch => this.wheelLetterBtn(ch, c, true)).join('')}</div>
+          </div>
+          <div class="wf-solve">
+            <input id="wheel-solve" class="wf-solve-input" maxlength="80" placeholder="Guess the whole puzzle…" autocomplete="off" autocapitalize="characters">
+            <button class="btn teal" data-act="wheel-solve">🔓 Solve</button>
+          </div>
+        </div>
+      </div>
     </div>`;
+  },
+
+  /* ---------- pictionary ---------- */
+  pictionaryStart() {
+    this.pictionary = {
+      phase: 'ready',
+      deck: this._shuffle(PICTIONARY_DECK.slice()),
+      idx: 0,
+      score: 0,
+      skipped: 0,
+      peeked: false,
+      timeLeft: 90,
+      timerId: null,
+      strokes: [],
+      _draw: null,
+      revealNote: '',
+      color: '#2b2440',
+      width: 4,
+      tool: 'draw'
+    };
+  },
+
+  pictionaryNewGame() {
+    this.pictionaryStart();
+    this.pictionaryStartRound();
+  },
+
+  pictionaryStartRound() {
+    const g = this.pictionary;
+    if (!g) return;
+    g.phase = 'play';
+    g.strokes = [];
+    this.sound('click');
+    this.renderAll();
+  },
+
+  pictionaryResetRound() {
+    const g = this.pictionary;
+    g.peeked = false;
+    g.timeLeft = 90;
+    g.strokes = [];
+    g._draw = null;
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+  },
+
+  pictionaryPeek() {
+    const g = this.pictionary;
+    if (!g || g.phase !== 'play' || g.peeked) return;
+    g.peeked = true;
+    g.timeLeft = 90;
+    this.sound('click');
+    this.renderAll();
+    g.timerId = setInterval(() => {
+      g.timeLeft--;
+      const fill = document.getElementById('pic-time');
+      const count = document.getElementById('pic-count');
+      if (fill) fill.style.width = Math.max(0, (g.timeLeft / 90) * 100) + '%';
+      if (count) {
+        count.textContent = g.timeLeft + 's';
+        if (g.timeLeft <= 10) count.classList.add('timeup');
+      }
+      if (g.timeLeft <= 0) {
+        clearInterval(g.timerId);
+        g.timerId = null;
+        this.pictionaryPass(true);
+      }
+    }, 1000);
+  },
+
+  pictionaryCorrect() {
+    const g = this.pictionary;
+    if (!g || g.phase !== 'play') return;
+    g.score++;
+    this.sound('correct');
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    if (g.idx + 1 >= g.deck.length) {
+      g.phase = 'over';
+      setTimeout(() => this.confetti(), 150);
+    } else {
+      g.idx++;
+      this.pictionaryResetRound();
+    }
+    this.renderAll();
+  },
+
+  pictionaryPass(timedOut) {
+    const g = this.pictionary;
+    if (!g || g.phase !== 'play') return;
+    g.skipped++;
+    this.sound('click');
+    if (g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    g.revealNote = timedOut ? "⏰ Time's up!" : '✕ Passed';
+    g.phase = 'reveal';
+    this.renderAll();
+  },
+
+  pictionaryNext() {
+    const g = this.pictionary;
+    if (!g || g.phase !== 'reveal') return;
+    if (g.idx + 1 >= g.deck.length) {
+      g.phase = 'over';
+      setTimeout(() => this.confetti(), 150);
+    } else {
+      g.idx++;
+      this.pictionaryResetRound();
+      g.phase = 'play';
+    }
+    this.renderAll();
+  },
+
+  pictionaryUndo() {
+    const g = this.pictionary;
+    if (!g || !g.strokes.length) return;
+    g.strokes.pop();
+    this.sound('click');
+    this.renderAll();
+  },
+
+  pictionaryClear() {
+    const g = this.pictionary;
+    if (!g || !g.strokes.length) return;
+    g.strokes = [];
+    this.sound('click');
+    this.renderAll();
+  },
+
+  picPoint(e, canvas) {
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  },
+
+  picPaint(s) {
+    const ctx = this._picCtx;
+    if (!ctx || !s || s.pts.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(s.pts[0].x, s.pts[0].y);
+    for (let i = 1; i < s.pts.length; i++) ctx.lineTo(s.pts[i].x, s.pts[i].y);
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.width;
+    ctx.globalCompositeOperation = s.tool === 'erase' ? 'destination-out' : 'source-over';
+    ctx.stroke();
+  },
+
+  initPictionary(app) {
+    const canvas = app.querySelector('#pic-canvas');
+    if (!canvas) return;
+    const g = this.pictionary;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    this._picCtx = ctx;
+    g.strokes.forEach(s => this.picPaint(s));
+    const drawable = () => g && g.phase === 'play' && g.peeked;
+    canvas.addEventListener('pointerdown', e => {
+      if (!drawable()) return;
+      e.preventDefault();
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      g._draw = { tool: g.tool, color: g.color, width: g.width, pts: [this.picPoint(e, canvas)] };
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (!g._draw || !drawable()) return;
+      g._draw.pts.push(this.picPoint(e, canvas));
+      this.picPaint(g._draw);
+    });
+    const endStroke = () => {
+      if (!g._draw) return;
+      g.strokes.push(g._draw);
+      g._draw = null;
+    };
+    canvas.addEventListener('pointerup', endStroke);
+    canvas.addEventListener('pointercancel', endStroke);
+  },
+
+  renderPictionary() {
+    if (!this.pictionary) this.pictionaryStart();
+    const g = this.pictionary;
+    const total = g.deck.length;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🖌️ DBT Pictionary</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Guessed</span></div>
+        <div class="stat-card"><b>${g.skipped}</b><span>Skipped</span></div>
+        <div class="stat-card"><b>${g.idx + 1}/${total}</b><span>Word</span></div>
+      </div>`;
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">🖌️</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            Pick one player to be the <b>artist</b> — everyone else looks away while the artist peeks at the secret word.<br>
+            The artist <b>draws</b> it on the canvas — no letters, no numbers, no talking about it.<br>
+            Everyone else shouts out guesses. Tap <b>✔ Correct!</b> when someone gets it, or <b>✕ Pass</b> to skip.<br>
+            <b>90 seconds</b> per word. Pass the device to a new artist each round!
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="pictionary-start">▶ Start Drawing</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'reveal') {
+      const cur = g.deck[g.idx];
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:36px 20px;margin-top:14px">
+          <h3>${g.revealNote || '✕ Skipped'}</h3>
+          <p class="muted" style="margin-top:8px">The word was:</p>
+          <div class="pic-reveal">${cur.emoji} ${esc(cur.word)} <span class="charade-type ${cur.type}">${cur.type}</span></div>
+          <p class="muted" style="margin-top:10px">A good way to draw it: <b>${esc(cur.hint)}</b></p>
+          <button class="btn teal" data-act="pictionary-next" style="margin-top:16px">Next Word →</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 Deck cleared!</h3>
+          <p class="muted">You drew every word — <b>${g.score}</b> guessed${g.skipped ? ', ' + g.skipped + ' skipped' : ''}.</p>
+          <button class="btn teal" data-act="pictionary-new" style="margin-top:10px">↺ Play Again (reshuffled)</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const cur = g.deck[g.idx];
+    const pct = Math.max(0, (g.timeLeft / 90) * 100);
+    const colors = ['#2b2440', '#ef4f4f', '#ffb833', '#46c46e', '#4aa8ff', '#7c5cff', '#ff6b8a', '#0f9d8a', '#8a4fd4', '#a06a00'];
+    const widths = [{ w: 3, l: 'S' }, { w: 6, l: 'M' }, { w: 11, l: 'L' }];
+    return `<div class="screen">${top}
+      <div class="pic-play">
+        <div class="pic-top">
+          ${g.peeked
+            ? `<div class="pic-word"><span class="charade-type ${cur.type}">${cur.type}</span> <b>${esc(cur.word)}</b></div>
+               <div class="pic-timer"><div class="pic-bar"><div id="pic-time" class="pic-fill" style="width:${pct}%"></div></div><div id="pic-count" class="pic-count ${g.timeLeft <= 10 ? 'timeup' : ''}">${g.timeLeft}s</div></div>`
+            : `<div class="pic-hint"><b>Pass the device to the artist.</b><br>Everyone else, look away — then the artist taps <b>👀 Peek Word</b> to see the secret.</div>`}
+        </div>
+        <div class="pic-board">
+          <canvas id="pic-canvas" class="pic-canvas"></canvas>
+        </div>
+        <div class="pic-tools">
+          ${colors.map(c => `<button class="pic-swatch ${g.color === c ? 'sel' : ''}" data-act="pictionary-color" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('')}
+          <span class="pic-div"></span>
+          <button class="pic-toolbtn ${g.tool === 'draw' ? 'sel' : ''}" data-act="pictionary-tool" data-t="draw" title="Draw">✏️</button>
+          <button class="pic-toolbtn ${g.tool === 'erase' ? 'sel' : ''}" data-act="pictionary-tool" data-t="erase" title="Erase">🧽</button>
+          <span class="pic-div"></span>
+          ${widths.map(x => `<button class="pic-toolbtn ${g.width === x.w ? 'sel' : ''}" data-act="pictionary-width" data-w="${x.w}" title="Brush ${x.l}">${x.l}</button>`).join('')}
+          <span class="pic-div"></span>
+          <button class="pic-toolbtn" data-act="pictionary-undo" title="Undo" ${g.strokes.length ? '' : 'disabled'}>↩</button>
+          <button class="pic-toolbtn" data-act="pictionary-clear" title="Clear canvas" ${g.strokes.length ? '' : 'disabled'}>🗑</button>
+        </div>
+        ${g.peeked
+          ? `<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px">
+               <button class="btn teal" data-act="pictionary-correct">✔ Correct!</button>
+               <button class="btn ghost" data-act="pictionary-pass">✕ Pass</button>
+             </div>
+             <p class="muted" style="text-align:center;margin-top:10px">Guessing time — the artist draws, guessers shout answers!</p>`
+          : `<div style="text-align:center;margin-top:12px"><button class="btn gold" data-act="pictionary-peek">👀 Peek Word</button></div>`}
+      </div>`;
+  },
+
+  /* ---------- skill detective ---------- */
+  detectiveStart() {
+    this.detective = {
+      phase: 'ready',
+      cases: this._shuffle(SKILL_DETECTIVE_CASES.slice()).slice(0, 10).map(c => {
+        const skill = DBT_SKILLS[c.skillId];
+        const opts = [{ label: skill.name, correct: true }];
+        const seen = { [skill.name]: true };
+        for (const d of this._shuffle(SKILL_DETECTIVE_POOL.filter(n => n !== skill.name))) {
+          if (opts.length >= 4) break;
+          if (seen[d]) continue;
+          seen[d] = true;
+          opts.push({ label: d, correct: false });
+        }
+        const mod = DBT_MODULES.find(m => m.id === skill.moduleId);
+        return Object.assign({}, c, {
+          skillName: skill.name,
+          explain: skill.short,
+          module: mod ? mod.name : '',
+          opts: this._shuffle(opts)
+        });
+      }),
+      idx: 0,
+      score: 0,
+      answered: null
+    };
+  },
+
+  detectiveBegin() {
+    const g = this.detective;
+    if (!g) return;
+    g.phase = 'play';
+    this.sound('click');
+    this.renderAll();
+  },
+
+  detectiveAnswer(i) {
+    const g = this.detective;
+    const c = g.cases[g.idx];
+    if (!g || g.phase !== 'play' || g.answered !== null) return;
+    g.answered = i;
+    if (c.opts[i].correct) { g.score += 10; this.sound('correct'); }
+    else this.sound('wrong');
+    this.renderAll();
+  },
+
+  detectiveNext() {
+    const g = this.detective;
+    if (!g || g.phase !== 'play' || g.answered === null) return;
+    g.idx++;
+    g.answered = null;
+    if (g.idx >= g.cases.length) g.phase = 'over';
+    this.renderAll();
+  },
+
+  detectiveNew() {
+    this.detectiveStart();
+    this.detectiveBegin();
+  },
+
+  renderDetective() {
+    if (!this.detective) this.detectiveStart();
+    const g = this.detective;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🕵️ Skill Detective</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.idx}/${g.cases.length}</b><span>Case</span></div>
+        <div class="stat-card"><b>${g.phase === 'over' ? 'done' : g.answered === null ? 'reading…' : 'solved'}</b><span>Status</span></div>
+      </div>`;
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">🕵️</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            You'll get a <b>scene</b> — a little story about a person using a DBT skill.<br>
+            Read it, spot which skill is at work, and pick it from <b>four choices</b>.<br>
+            Get it right and you earn <b>10 points</b> per case. Ten cases a game!
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="detective-start">▶ Start Investigating</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
+      const pct = Math.round(g.score / (g.cases.length * 10) * 100);
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>${pct === 100 ? '🏆 Flawless detective!' : pct >= 70 ? '🎉 Case closed!' : '🔍 Good practicing!'}</h3>
+          <p class="muted">You solved <b>${g.score / 10}</b> of <b>${g.cases.length}</b> cases (${pct}%).</p>
+          <button class="btn teal" data-act="detective-new" style="margin-top:10px">↺ Play Again (new cases)</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const c = g.cases[g.idx];
+    const answered = g.answered !== null;
+    const chosen = answered ? c.opts[g.answered] : null;
+    return `<div class="screen">${top}
+      <div class="panel detective-scene">
+        <div class="detective-case"><b>Case ${g.idx + 1} of ${g.cases.length}</b>${c.module ? ' <span class="skill-tag video">' + esc(c.module) + '</span>' : ''}</div>
+        <p class="detective-story">${esc(c.scene)}</p>
+        <p class="detective-q">Which skill is this person using?</p>
+      </div>
+      <div class="option-grid" style="margin-top:12px">
+        ${c.opts.map((o, i) => {
+          let cls = 'option-btn';
+          let tag = 'option-tag';
+          let tagTxt = 'A';
+          if (answered) {
+            if (o.correct) { cls += ' revealed correct'; tag += ' correct'; tagTxt = '✓'; }
+            else if (i === g.answered) { cls += ' revealed wrong'; tag += ' wrong'; tagTxt = '✗'; }
+          }
+          return `<button class="${cls}" data-act="detective-answer" data-i="${i}" ${answered ? 'disabled' : ''}><span class="${tag}">${tagTxt}</span><span>${esc(o.label)}</span></button>`;
+        }).join('')}
+      </div>
+      ${answered ? `<div class="feedback-box ${chosen.correct ? 'good' : 'bad'}">
+        <h4>${chosen.correct ? '🎉 Nailed it!' : '🙃 Not quite'}</h4>
+        <p>The skill here is <b>${esc(c.skillName)}</b>.</p>
+        <p class="muted" style="margin-top:8px">${esc(c.explain)}</p>
+        <button class="btn teal" style="margin-top:14px" data-act="detective-next">${g.idx + 1 >= g.cases.length ? 'See Results →' : 'Next Case →'}</button>
+      </div>` : ''}`;
+  },
+
+  /* ---------- mindfulness memory match ---------- */
+  memoryStart() {
+    const set = MEMORY_MATCH_SET.map(sid => {
+      const skill = DBT_SKILLS[sid];
+      const mod = DBT_MODULES.find(m => m.id === skill.moduleId);
+      return { sid, skillName: skill.name, moduleName: mod.name, emoji: mod.icon, color: mod.color };
+    });
+    const cards = [];
+    set.forEach(p => {
+      cards.push({ sid: p.sid, kind: 'skill', text: p.skillName, color: p.color });
+      cards.push({ sid: p.sid, kind: 'module', text: p.moduleName, emoji: p.emoji, color: p.color });
+    });
+    this.memory = {
+      phase: 'play',
+      cards: this._shuffle(cards),
+      flips: [],
+      matched: {},
+      moves: 0,
+      score: 0,
+      pairs: set.length,
+      timerId: null
+    };
+  },
+
+  memoryFlip(i) {
+    const g = this.memory;
+    if (!g || g.phase !== 'play') return;
+    const card = g.cards[i];
+    if (g.matched[card.sid] || g.flips.indexOf(i) >= 0) return;
+    if (g.flips.length >= 2) return;
+    g.flips.push(i);
+    if (g.flips.length === 2) {
+      g.moves++;
+      const a = g.cards[g.flips[0]];
+      const b = g.cards[g.flips[1]];
+      if (a.sid === b.sid) {
+        g.matched[a.sid] = true;
+        g.flips = [];
+        g.score += 10;
+        this.sound('correct');
+        if (Object.keys(g.matched).length === g.pairs) {
+          g.phase = 'over';
+          setTimeout(() => this.confetti(), 150);
+        }
+      } else {
+        this.sound('click');
+        g.timerId = setTimeout(() => {
+          g.timerId = null;
+          g.flips = [];
+          this.renderAll();
+        }, 800);
+      }
+    }
+    this.renderAll();
+  },
+
+  memoryNew() {
+    if (this.memory && this.memory.timerId) clearTimeout(this.memory.timerId);
+    this.memoryStart();
+    this.renderAll();
+  },
+
+  renderMemory() {
+    if (!this.memory) this.memoryStart();
+    const g = this.memory;
+    const matchedCount = Object.keys(g.matched).length;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🧠 Mindfulness Memory Match</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.moves}</b><span>Moves</span></div>
+        <div class="stat-card"><b>${matchedCount}/${g.pairs}</b><span>Pairs</span></div>
+      </div>`;
+    if (g.phase === 'over') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 All pairs matched!</h3>
+          <p class="muted">You paired all ${g.pairs} skills with their modules in <b>${g.moves}</b> moves (score ${g.score}).</p>
+          <button class="btn teal" data-act="memory-new" style="margin-top:10px">↺ Play Again (reshuffled)</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const face = (card, i) => {
+      const up = g.matched[card.sid] || g.flips.indexOf(i) >= 0;
+      const content = up
+        ? (card.kind === 'module'
+          ? `<span class="mem-front-emoji">${card.emoji}</span><span class="mem-front-skill">${esc(card.text)}</span>`
+          : `<span class="mem-front-skill big">${esc(card.text)}</span>`)
+        : '<span class="mem-back">?</span>';
+      return `<button class="mem-card ${up ? 'up' : ''}" data-act="memory-flip" data-i="${i}" ${g.matched[card.sid] ? 'style="border-color:' + card.color + '"' : ''}>${content}</button>`;
+    };
+    return `<div class="screen">${top}
+      <p class="muted" style="text-align:center;margin:6px 0 14px">Flip cards to pair each <b>skill</b> with the <b>module</b> it belongs to. Two flips a turn!</p>
+      <div class="mem-grid">${g.cards.map((c, i) => face(c, i)).join('')}</div>
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn ghost sm" data-act="memory-new">↺ Reshuffle</button>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- deep breathing balloon ---------- */
+  breathStart() {
+    this.breath = { phase: 'ready', cycles: 0, target: 5, timerId: null };
+  },
+
+  breathBegin() {
+    const g = this.breath;
+    if (!g) return;
+    g.phase = 'play';
+    g.cycles = 0;
+    this.sound('click');
+    this.renderAll();
+    if (g.timerId) clearInterval(g.timerId);
+    g.timerId = setInterval(() => {
+      g.cycles++;
+      const el = document.getElementById('breath-cycles');
+      if (el) el.textContent = g.cycles + '/' + g.target;
+      if (g.cycles >= g.target) {
+        clearInterval(g.timerId);
+        g.timerId = null;
+        g.phase = 'done';
+        this.sound('badge');
+        this.renderAll();
+      }
+    }, 16000);
+  },
+
+  breathStop() {
+    const g = this.breath;
+    if (g && g.timerId) { clearInterval(g.timerId); g.timerId = null; }
+    if (g) g.phase = 'ready';
+    this.renderAll();
+  },
+
+  breathNew() {
+    if (this.breath && this.breath.timerId) { clearInterval(this.breath.timerId); this.breath.timerId = null; }
+    this.breathStart();
+    this.breathBegin();
+  },
+
+  renderBreathing() {
+    if (!this.breath) this.breathStart();
+    const g = this.breath;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>🎈 Deep Breathing Balloon</h2></div>`;
+    if (g.phase !== 'play') {
+      const done = g.phase === 'done';
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">🎈</div>
+          <h3>${done ? '🌿 Session complete' : 'How to play'}</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            Watch the balloon and follow it.<br>
+            <b>Breathe in</b> while it grows … <b>hold</b> … <b>breathe out</b> while it shrinks … <b>rest</b>.<br>
+            That's one full cycle — <b>${g.target} cycles</b> in this session (about 1 minute 20 seconds).<br>
+            Long, slow exhales tell your nervous system it can relax.
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="breath-start">▶ ${done ? 'Breathe Again' : 'Start Breathing'}</button>
+          ${done ? '<button class="btn ghost" style="margin-top:8px" data-act="games">🎮 More Mini Games</button>' : ''}
+        </div>
+      </div>`;
+    }
+    const label = (txt, anim) => `<div class="breath-label" style="animation:${anim} 16s linear infinite">${txt}</div>`;
+    return `<div class="screen">${top}
+      <div class="breath-stage">
+        <div class="breath-balloon"><span class="breath-ball">🎈</span></div>
+        <div class="breath-labels">
+          ${label('Breathe in…', 'phIn')}
+          ${label('Hold', 'phHold')}
+          ${label('Breathe out…', 'phOut')}
+          ${label('Rest', 'phRest')}
+        </div>
+      </div>
+      <div class="breath-meta">
+        <div class="breath-cycles" id="breath-cycles">${g.cycles}/${g.target}</div>
+        <div class="btn-row" style="justify-content:center;margin-top:8px">
+          <button class="btn ghost sm" data-act="breath-stop">⏹ Stop</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- chain analysis puzzle ---------- */
+  chainStart() {
+    this.chain = {
+      phase: 'ready',
+      puzzles: this._shuffle(CHAIN_PUZZLES.slice()),
+      idx: 0,
+      links: [],
+      placed: [],
+      score: 0,
+      wrong: false
+    };
+  },
+
+  chainBegin() {
+    const g = this.chain;
+    if (!g) return;
+    g.phase = 'play';
+    this.chainLoad();
+    this.sound('click');
+    this.renderAll();
+  },
+
+  chainLoad() {
+    const g = this.chain;
+    const p = g.puzzles[g.idx];
+    g.links = this._shuffle(p.links.map((t, i) => ({ t, i })));
+    g.placed = [];
+    g.wrong = false;
+  },
+
+  chainPick(i) {
+    const g = this.chain;
+    if (!g || g.phase !== 'play') return;
+    if (g.placed.indexOf(i) >= 0) return;
+    if (i === g.placed.length) {
+      g.placed.push(i);
+      g.score += 10;
+      g.wrong = false;
+      this.sound('correct');
+    } else {
+      g.wrong = true;
+      this.sound('wrong');
+    }
+    this.renderAll();
+  },
+
+  chainNext() {
+    const g = this.chain;
+    if (!g || g.phase !== 'play') return;
+    g.idx++;
+    this.chainLoad();
+    this.renderAll();
+  },
+
+  chainNew() {
+    this.chainStart();
+    this.chainBegin();
+  },
+
+  renderChain() {
+    if (!this.chain) this.chainStart();
+    const g = this.chain;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>⛓️ Chain Analysis Puzzle</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Score</span></div>
+        <div class="stat-card"><b>${g.idx + 1}/${g.puzzles.length}</b><span>Chain</span></div>
+        <div class="stat-card"><b>${g.links.length ? g.placed.length + '/' + g.links.length : '—'}</b><span>Links</span></div>
+      </div>`;
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">⛓️</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            Every behavior follows a <b>chain</b>: the event that started it, the thoughts and feelings that followed, the action, and the consequence that keeps it going.<br>
+            The links are <b>scrambled</b>. Tap them <b>in order</b>, from the first link to the last.<br>
+            Spot the link you could change — that's where a DBT skill fits!
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="chain-start">▶ Start the First Chain</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>🏆 All chains rebuilt!</h3>
+          <p class="muted">You ordered every chain correctly — <b>${g.score / 10}</b> chains, ${g.score} points.</p>
+          <button class="btn teal" data-act="chain-new" style="margin-top:10px">↺ Play Again (reshuffled)</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const p = g.puzzles[g.idx];
+    const complete = g.placed.length >= g.links.length;
+    const placedLinks = g.placed.map(idx => g.links.find(l => l.i === idx).t);
+    const remaining = g.links.filter(l => g.placed.indexOf(l.i) < 0);
+    return `<div class="screen">${top}
+      <div class="panel chain-puzzle">
+        <h3 style="text-align:center">${esc(p.title)}</h3>
+        <div class="chain-built">${placedLinks.map((t, i) => `<div class="chain-link placed">${i + 1}. ${esc(t)}</div>`).join('')}${complete ? '' : '<div class="chain-link next">Next link?</div>'}</div>
+        ${complete
+          ? `<div class="chain-fix">🛠️ <b>Which link could you change?</b> The link right before the behavior — that\'s the best place to slip in a DBT skill.</div>
+             <div style="text-align:center;margin-top:14px"><button class="btn teal" data-act="chain-next">${g.idx + 1 >= g.puzzles.length ? 'See Results →' : 'Next Chain →'}</button></div>`
+          : `<div class="chain-options ${g.wrong ? 'shake' : ''}">${remaining.map(l => `<button class="chain-link opt" data-act="chain-pick" data-i="${l.i}">${esc(l.t)}</button>`).join('')}</div>
+             <p class="muted" style="text-align:center;margin-top:12px">Tap the links in the order they actually happened.</p>`}
+      </div>
+    </div>`;
+  },
+
+  /* ---------- rapid-fire flashcards ---------- */
+  flashStart() {
+    const deck = this._shuffle(FLASHCARD_DECK.slice()).slice(0, 15).map(c => {
+      const pool = this._shuffle(FLASHCARD_DECK.map(x => x.a).filter(a => a !== c.a));
+      const seen = { [c.a]: true };
+      const opts = [{ label: c.a, correct: true }];
+      for (const d of pool) {
+        if (opts.length >= 4) break;
+        if (seen[d]) continue;
+        seen[d] = true;
+        opts.push({ label: d, correct: false });
+      }
+      return Object.assign({}, c, { opts: this._shuffle(opts) });
+    });
+    this.flash = {
+      phase: 'ready',
+      deck,
+      idx: 0,
+      score: 0,
+      missed: 0,
+      streak: 0,
+      best: 0,
+      timeLeft: 90,
+      timerId: null,
+      answered: null
+    };
+  },
+
+  flashBegin() {
+    const g = this.flash;
+    if (!g) return;
+    g.phase = 'play';
+    g.timeLeft = 90;
+    g.answered = null;
+    this.sound('click');
+    this.renderAll();
+    if (g.timerId) clearInterval(g.timerId);
+    g.timerId = setInterval(() => {
+      g.timeLeft--;
+      const el = document.getElementById('flash-time');
+      if (el) {
+        el.textContent = g.timeLeft + 's';
+        el.classList.toggle('timeup', g.timeLeft <= 10);
+      }
+      if (g.timeLeft <= 0) {
+        clearInterval(g.timerId);
+        g.timerId = null;
+        g.phase = 'over';
+        this.sound('badge');
+        this.renderAll();
+      }
+    }, 1000);
+  },
+
+  flashAnswer(i) {
+    const g = this.flash;
+    if (!g || g.phase !== 'play' || g.answered !== null) return;
+    const c = g.deck[g.idx];
+    g.answered = i;
+    if (c.opts[i].correct) {
+      g.score++;
+      g.streak++;
+      g.best = Math.max(g.best, g.streak);
+      this.sound('correct');
+    } else {
+      g.missed++;
+      g.streak = 0;
+      this.sound('wrong');
+    }
+    this.renderAll();
+  },
+
+  flashNext() {
+    const g = this.flash;
+    if (!g || g.phase !== 'play') return;
+    g.idx++;
+    g.answered = null;
+    if (g.idx >= g.deck.length) {
+      g.phase = 'over';
+      this.sound('badge');
+    }
+    this.renderAll();
+  },
+
+  flashNew() {
+    if (this.flash && this.flash.timerId) { clearInterval(this.flash.timerId); this.flash.timerId = null; }
+    this.flashStart();
+    this.flashBegin();
+  },
+
+  renderFlashcards() {
+    if (!this.flash) this.flashStart();
+    const g = this.flash;
+    const top = `<div class="section-title"><button class="btn sm ghost back" data-act="nav" data-to="games">🎮 Mini Games</button><h2>⚡ Rapid-Fire Flashcards</h2></div>
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><b>${g.score}</b><span>Correct</span></div>
+        <div class="stat-card"><b>${g.streak}</b><span>Streak</span></div>
+        <div class="stat-card"><b>${g.phase === 'play' ? g.timeLeft + 's' : '1:30'}</b><span>Timer</span></div>
+      </div>`;
+    if (g.phase === 'ready') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:32px 22px;margin-top:14px">
+          <div style="font-size:3rem">⚡</div>
+          <h3>How to play</h3>
+          <p class="muted" style="text-align:left;line-height:1.6;margin-top:10px">
+            You have <b>90 seconds</b> to name as many DBT skills as you can.<br>
+            Each card shows a <b>clue</b> — pick the skill it describes from <b>four choices</b>.<br>
+            Correct answers build your <b>streak</b>; a miss resets it. Beat your best!
+          </p>
+          <button class="btn gold" style="margin-top:16px" data-act="flash-start">▶ Start 1:30</button>
+        </div>
+      </div>`;
+    }
+    if (g.phase === 'over') {
+      return `<div class="screen">${top}
+        <div class="panel" style="text-align:center;padding:40px 20px;margin-top:14px">
+          <h3>⏰ Time's up!</h3>
+          <p class="muted">You named <b>${g.score}</b> skills correctly${g.missed ? ' and missed ' + g.missed : ''}. Best streak: <b>${g.best}</b>.</p>
+          <button class="btn teal" data-act="flash-new" style="margin-top:10px">↺ Play Again</button>
+          <button class="btn ghost" data-act="games" style="margin-top:8px">🎮 More Mini Games</button>
+        </div>
+      </div>`;
+    }
+    const c = g.deck[g.idx];
+    const answered = g.answered !== null;
+    const chosen = answered ? c.opts[g.answered] : null;
+    const pct = Math.max(0, (g.timeLeft / 90) * 100);
+    return `<div class="screen">${top}
+      <div class="flash-timer"><div class="flash-bar"><div style="width:${pct}%"></div></div><div id="flash-time" class="flash-count ${g.timeLeft <= 10 ? 'timeup' : ''}">${g.timeLeft}s</div></div>
+      <div class="panel" style="margin-top:12px;padding:22px">
+        <p class="muted tiny" style="text-align:center">Card ${g.idx + 1} of ${g.deck.length}</p>
+        <h3 style="text-align:center;line-height:1.5;margin:10px 0 4px">${esc(c.q)}</h3>
+      </div>
+      <div class="option-grid" style="margin-top:12px">
+        ${c.opts.map((o, i) => {
+          let cls = 'option-btn';
+          let tag = 'option-tag';
+          let tagTxt = 'A';
+          if (answered) {
+            if (o.correct) { cls += ' revealed correct'; tag += ' correct'; tagTxt = '✓'; }
+            else if (i === g.answered) { cls += ' revealed wrong'; tag += ' wrong'; tagTxt = '✗'; }
+          }
+          return `<button class="${cls}" data-act="flash-answer" data-i="${i}" ${answered ? 'disabled' : ''}><span class="${tag}">${tagTxt}</span><span>${esc(o.label)}</span></button>`;
+        }).join('')}
+      </div>
+      ${answered ? `<div class="feedback-box ${chosen.correct ? 'good' : 'bad'}" style="margin-top:12px">
+        <h4>${chosen.correct ? '🎉 Correct!' : '🙃 Not quite'}</h4>
+        <p>It's <b>${esc(c.a)}</b>. ${chosen.correct ? 'Streak: ' + g.streak + ' 🔥' : 'Streak reset — next one!'}</p>
+        <button class="btn teal" style="margin-top:14px" data-act="flash-next">${g.idx + 1 >= g.deck.length ? 'See Results →' : 'Next Card →'}</button>
+      </div>` : ''}
+      <p class="muted" style="text-align:center;margin-top:10px">Best streak: <b>${g.best}</b></p>`;
   },
 
   /* ---------- movie illustrations ---------- */

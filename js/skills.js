@@ -1832,7 +1832,11 @@ const DIALECTICAL_DILEMMAS = [
       dialectic: 'You can ask for help AND you are able to handle things yourself. Competence is not ruined by asking, and asking is not a failure of competence.',
       ask: 'What am I looking fine about right now that I am actually struggling with — and who could I honestly tell?'
     },
-    youtubeId: ''
+    youtubeId: '',
+    clips: [
+      { label: '📚 Educational', title: 'Learned Helplessness and Depression', desc: 'The passive pole in action: learned helplessness — when repeated failure teaches you to stop trying and wait for rescue instead.', youtubeId: 'wpZ-kIJ4OKA' },
+      { label: '🎬 Encanto — Apparent Competence', title: 'Luisa Starts to Crack', desc: 'The strong one everyone leans on: Luisa looks completely capable, then the pressure makes her crack — competence hiding a collapse underneath.', youtubeId: 'dl6y895FJT4' }
+    ]
   },
   {
     id: 'permissive-vs-authoritarian',
@@ -1871,7 +1875,11 @@ const DIALECTICAL_DILEMMAS = [
       dialectic: 'The behavior is both understandable AND worth changing. It makes sense given the person\'s story — and skills can still help them write the next chapter.',
       ask: 'Am I treating this as "not a real problem" or as "this person is broken" — and what would the middle sound like?'
     },
-    youtubeId: ''
+    youtubeId: '',
+    clips: [
+      { label: '📚 Educational', title: 'Sad and Happy: Feelings Happen', desc: 'The normalizing pole, done gently: feelings are a normal part of being human — every emotion deserves a place.', youtubeId: 'Ocj0gyZwL5Y' },
+      { label: '🎬 Real People — "Just a Phase"', title: 'For Anyone Who Has Been Told It\'s "Just a Phase"', desc: 'Real people whose struggle was waved off as a phase — the normalizing pole that misses the pain instead of seeing it as understandable AND changeable.', youtubeId: 'KAWlvhYZ_C0' }
+    ]
   },
   {
     id: 'forcing-autonomy-vs-dependence',
@@ -1889,7 +1897,11 @@ const DIALECTICAL_DILEMMAS = [
       dialectic: 'Encourage independence while staying close. Offer support that gradually steps back, so confidence builds on a safe base instead of in a vacuum.',
       ask: 'Am I holding on too tight or letting go too fast — and what is the next tiny step that does a bit of both?'
     },
-    youtubeId: ''
+    youtubeId: '',
+    clips: [
+      { label: '📚 Educational', title: 'Why You Should Spend Less Time with Your Kids', desc: 'Lenore Skenazy\'s TED talk on free-range parenting — the forcing-autonomy pole: trusting young people to handle more on their own.', youtubeId: 'whaesnYloMQ' },
+      { label: '🎬 Turning Red — Forcing Dependence', title: 'Mei\'s Ritual', desc: 'Ming hovers over every move Mei makes, keeping her dependent — the overprotection that never lets the skills get practiced.', youtubeId: 'pEzgdp-R8Zc' }
+    ]
   }
 ];
 
@@ -1985,9 +1997,9 @@ const GAMES = [
   },
   {
     id: 'skill-charades',
-    name: 'Skill Charades',
-    emoji: '🎭',
-    desc: 'Act it out, no words! Mime skills, emotions, and coping moves from a shuffled 50-card deck.',
+    name: 'Taboo/Heads Up',
+    emoji: '🎤',
+    desc: 'Give clues to help an identified player guess the word on the card — one minute to get as many as you can.',
     status: 'live'
   },
   {
@@ -2010,7 +2022,158 @@ const GAMES = [
     emoji: '🧩',
     desc: 'Every clue is a DBT skill or idea — fill the grid and clear the board.',
     status: 'live'
+  },
+  {
+    id: 'wheel-of-fortune',
+    name: 'Wheel of Fortune',
+    emoji: '🎡',
+    desc: 'Spin the wheel, guess letters, and solve the DBT puzzle to bank your winnings.',
+    status: 'live'
+  },
+  {
+    id: 'pictionary',
+    name: 'DBT Pictionary',
+    emoji: '🖌️',
+    desc: 'One player draws a DBT word while everyone else guesses — no letters, no talking, just art.',
+    status: 'live'
+  },
+  {
+    id: 'skill-detective',
+    name: 'Skill Detective',
+    emoji: '🕵️',
+    desc: 'Read the scene and spot which DBT skill is at work — become a skill-spotting detective.',
+    status: 'live'
+  },
+  {
+    id: 'memory-match',
+    name: 'Mindfulness Memory Match',
+    emoji: '🧠',
+    desc: 'Flip cards to pair each skill with its module — a calm game of memory and mindfulness.',
+    status: 'live'
+  },
+  {
+    id: 'deep-breathing',
+    name: 'Deep Breathing Balloon',
+    emoji: '🎈',
+    desc: 'Follow the balloon as it grows and shrinks — a guided breathing reset for the nervous system.',
+    status: 'live'
+  },
+  {
+    id: 'chain-analysis',
+    name: 'Chain Analysis Puzzle',
+    emoji: '⛓️',
+    desc: 'Put the links of a behavior chain back in order and spot the link you could change.',
+    status: 'live'
+  },
+  {
+    id: 'flashcards',
+    name: 'Rapid-Fire Flashcards',
+    emoji: '⚡',
+    desc: 'Name the DBT skill from the clue as fast as you can — how many in 90 seconds?',
+    status: 'live'
   }
+];
+
+/* ---- Wheel of Fortune: DBT puzzles to solve by spinning and guessing letters. ---- */
+const WHEEL_SEGMENTS = [150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 700, 800, 900, 1000, 1200, 1500, 250, 'LOSE', 'BANKRUPT', 'LOSE'];
+
+const WHEEL_PUZZLES = [
+  { phrase: 'WISE MIND', category: 'Wisdom' },
+  { phrase: 'OPPOSITE ACTION', category: 'Skill' },
+  { phrase: 'RIDE THE WAVE', category: 'Skill' },
+  { phrase: 'RADICAL ACCEPTANCE', category: 'Skill' },
+  { phrase: 'CHECK THE FACTS', category: 'Skill' },
+  { phrase: 'DEAR MAN', category: 'Skill' },
+  { phrase: 'HALF SMILE', category: 'Skill' },
+  { phrase: 'THE MIDDLE PATH', category: 'Dialectic' },
+  { phrase: 'STOP AND BREATHE', category: 'Skill' },
+  { phrase: 'SELF SOOTHE', category: 'Skill' },
+  { phrase: 'TIPP SKILL', category: 'Skill' },
+  { phrase: 'TURNING THE MIND', category: 'Skill' },
+  { phrase: 'WILLINGNESS NOT WILLFULNESS', category: 'Wisdom' },
+  { phrase: 'PAIN IS INEVITABLE SUFFERING IS OPTIONAL', category: 'Motto' },
+  { phrase: 'VALIDATE YOUR FEELINGS', category: 'Skill' },
+  { phrase: 'THINK DIALECTICALLY', category: 'Dialectic' },
+  { phrase: 'PROS AND CONS', category: 'Skill' },
+  { phrase: 'COPE AHEAD', category: 'Skill' },
+  { phrase: 'BUILD MASTERY', category: 'Skill' },
+  { phrase: 'ENGAGE YOUR SENSES', category: 'Skill' },
+  { phrase: 'THREE STATES OF MIND', category: 'Module' },
+  { phrase: 'BALANCE YOUR LIFE', category: 'Wisdom' },
+  { phrase: 'BOTH AND', category: 'Dialectic' },
+  { phrase: 'JUDGMENT AND FACT', category: 'Wisdom' },
+  { phrase: 'ONE MIND AT A TIME', category: 'Module' },
+  { phrase: 'EMOTION MIND REASONABLE MIND WISE MIND', category: 'Module' },
+  { phrase: 'DO WHAT WORKS', category: 'Wisdom' },
+  { phrase: 'IMPROVE THE MOMENT', category: 'Skill' },
+  { phrase: 'DISTRACT WITH ACCEPTS', category: 'Skill' },
+  { phrase: 'CULTIVATE RESILIENCE', category: 'Motto' }
+];
+
+/* ---- DBT Pictionary: draw the word, everyone else guesses. ---- */
+const PICTIONARY_DECK = [
+  { word: 'Opposite Action', emoji: '↩️', type: 'skill', hint: 'Draw a big U-turn arrow.' },
+  { word: 'Radical Acceptance', emoji: '🙌', type: 'skill', hint: 'Draw open arms and a calm face.' },
+  { word: 'Check the Facts', emoji: '🔍', type: 'skill', hint: 'Draw a magnifying glass over a page.' },
+  { word: 'Ride the Wave', emoji: '🏄', type: 'skill', hint: 'Draw a surfer on a wave.' },
+  { word: 'DEAR MAN', emoji: '✉️', type: 'skill', hint: 'Draw an envelope with a smile.' },
+  { word: 'Half Smile', emoji: '🙂', type: 'skill', hint: 'Draw a face smiling on one side only.' },
+  { word: 'TIPP', emoji: '🧊', type: 'skill', hint: 'Draw an ice pack or a cold splash.' },
+  { word: 'Wise Mind', emoji: '⚖️', type: 'skill', hint: 'Draw a balance scale with a heart and a brain.' },
+  { word: 'Self Soothe', emoji: '🛁', type: 'skill', hint: 'Draw a bubble bath with candles.' },
+  { word: 'Pros and Cons', emoji: '📋', type: 'skill', hint: 'Draw a two-column list with a plus and a minus.' },
+  { word: 'Build Mastery', emoji: '🪜', type: 'skill', hint: 'Draw a staircase going up.' },
+  { word: 'Cope Ahead', emoji: '🗓️', type: 'skill', hint: 'Draw a calendar with a plan written on it.' },
+  { word: 'Anger', emoji: '😡', type: 'emotion', hint: 'Draw a red face with steam.' },
+  { word: 'Sadness', emoji: '😢', type: 'emotion', hint: 'Draw a face with a big tear.' },
+  { word: 'Fear', emoji: '😨', type: 'emotion', hint: 'Draw wide eyes and shaking hands.' },
+  { word: 'Joy', emoji: '☀️', type: 'emotion', hint: 'Draw a sun with a happy face.' },
+  { word: 'Disgust', emoji: '🤢', type: 'emotion', hint: 'Draw a green face sticking out its tongue.' },
+  { word: 'Surprise', emoji: '😲', type: 'emotion', hint: 'Draw a face with huge round eyes.' },
+  { word: 'Anxiety', emoji: '💓', type: 'emotion', hint: 'Draw a racing heart with squiggle lines.' },
+  { word: 'Embarrassment', emoji: '😳', type: 'emotion', hint: 'Draw a face turning red with a spotlight.' },
+  { word: 'Jealousy', emoji: '👾', type: 'emotion', hint: 'Draw a little green monster.' },
+  { word: 'Hopelessness', emoji: '🌧️', type: 'emotion', hint: 'Draw a dark cloud raining on a figure.' },
+  { word: 'Excitement', emoji: '✨', type: 'emotion', hint: 'Draw sparkles and a bouncing figure.' },
+  { word: 'Hurt', emoji: '💔', type: 'emotion', hint: 'Draw a cracked or broken heart.' },
+  { word: 'A Warm Bath', emoji: '🛁', type: 'coping', hint: 'Draw a bathtub with steam rising.' },
+  { word: 'Petting a Dog', emoji: '🐶', type: 'coping', hint: 'Draw a hand petting a dog.' },
+  { word: 'Walking Outside', emoji: '🚶', type: 'coping', hint: 'Draw a figure walking under trees.' },
+  { word: 'Listening to Music', emoji: '🎧', type: 'coping', hint: 'Draw headphones with music notes.' },
+  { word: 'Baking Cookies', emoji: '🍪', type: 'coping', hint: 'Draw a tray of cookies in an oven.' },
+  { word: 'Dancing', emoji: '💃', type: 'coping', hint: 'Draw a figure mid-dance with a music note.' },
+  { word: 'A Long Sleep', emoji: '😴', type: 'coping', hint: 'Draw a bed with zzz coming out.' },
+  { word: 'Talking to a Friend', emoji: '🗣️', type: 'coping', hint: 'Draw two speech bubbles meeting.' },
+  { word: 'Reading a Book', emoji: '📖', type: 'coping', hint: 'Draw an open book with a cozy chair.' },
+  { word: 'A Hot Tea', emoji: '🍵', type: 'coping', hint: 'Draw a steaming mug.' },
+  { word: 'Stretching', emoji: '🧘', type: 'coping', hint: 'Draw a figure reaching for the sky.' },
+  { word: 'Drawing', emoji: '🖍️', type: 'coping', hint: 'Draw a hand holding a crayon.' },
+  { word: 'Tired', emoji: '😪', type: 'vulnerability', hint: 'Draw a drooping face with heavy eyes.' },
+  { word: 'Hungry', emoji: '🍽️', type: 'vulnerability', hint: 'Draw a growling stomach and an empty plate.' },
+  { word: 'Sick', emoji: '🤒', type: 'vulnerability', hint: 'Draw a thermometer in a mouth.' },
+  { word: 'Lonely', emoji: '🏝️', type: 'vulnerability', hint: 'Draw one figure alone on an island.' },
+  { word: 'Overwhelmed', emoji: '🌊', type: 'vulnerability', hint: 'Draw a figure buried under big waves.' },
+  { word: 'Hormones', emoji: '🔬', type: 'vulnerability', hint: 'Draw a test tube with squiggly signs.' },
+  { word: 'Ignoring the Feeling', emoji: '🙈', type: 'avoidance', hint: 'Draw a figure covering its eyes.' },
+  { word: 'Endless Scrolling', emoji: '📱', type: 'avoidance', hint: 'Draw a phone with a long scrolling page.' },
+  { word: 'Sleeping All Day', emoji: '🛌', type: 'avoidance', hint: 'Draw the sun up while a figure stays in bed.' },
+  { word: 'Avoiding the Talk', emoji: '🚪', type: 'avoidance', hint: 'Draw someone walking away from a speech bubble.' },
+  { word: 'Comfort Eating', emoji: '🍩', type: 'avoidance', hint: 'Draw a figure with a huge donut.' },
+  { word: 'Pretending It Is Fine', emoji: '😬', type: 'avoidance', hint: 'Draw a big fake smile with a storm behind.' },
+  { word: 'Listening Without Fixing', emoji: '👂', type: 'validation', hint: 'Draw a big ear and a closed toolbox.' },
+  { word: 'Being Present', emoji: '🧍', type: 'validation', hint: 'Draw a calm figure in a bubble, no phone.' },
+  { word: 'A Warm Hug', emoji: '🤗', type: 'validation', hint: 'Draw two figures hugging.' },
+  { word: '"That Makes Sense"', emoji: '💬', type: 'validation', hint: 'Draw a speech bubble with a checkmark.' },
+  { word: 'Warm Eyes', emoji: '👀', type: 'validation', hint: 'Draw two kind, gentle eyes.' },
+  { word: 'Radical Genuineness', emoji: '🌟', type: 'validation', hint: 'Draw a real, honest handshake.' },
+  { word: 'The Middle Path', emoji: '🛤️', type: 'dilemma', hint: 'Draw a path running down the middle of two cliffs.' },
+  { word: 'Both And', emoji: '➕', type: 'dilemma', hint: 'Draw two halves joined by a plus.' },
+  { word: 'Walking a Tightrope', emoji: '🤹', type: 'dilemma', hint: 'Draw a figure on a tightrope with a balance pole.' },
+  { word: 'Balancing the Scales', emoji: '⚖️', type: 'dilemma', hint: 'Draw a scale with two equal bowls.' },
+  { word: 'Mindfulness', emoji: '🧘', type: 'module', hint: 'Draw a seated figure meditating.' },
+  { word: 'Distress Tolerance', emoji: '🌪️', type: 'module', hint: 'Draw a storm cloud with a calm figure under it.' },
+  { word: 'Emotion Regulation', emoji: '🌡️', type: 'module', hint: 'Draw a thermometer with a dial.' },
+  { word: 'Interpersonal Effectiveness', emoji: '💬', type: 'module', hint: 'Draw two speech bubbles holding hands.' }
 ];
 
 /* ---- Skill Scramble word pool: one token per skill, with a hint to make the guess learnable. ---- */
@@ -2147,7 +2310,179 @@ const CHARADES_DECK = [
   { word: 'Jogging', emoji: '🏃', type: 'coping', hint: 'Jog in place.', about: 'Cardio burns off adrenaline and lifts mood.' },
   { word: 'Journaling', emoji: '📓', type: 'coping', hint: 'Mime writing in a notebook.', about: 'Writing down the tangle untangles it.' },
   { word: 'A Warm Bath', emoji: '🛁', type: 'coping', hint: 'Mime sinking into a bath and relaxing.', about: 'Warmth soothes the body and calms the mind.' },
-  { word: 'A Funny Movie', emoji: '🍿', type: 'coping', hint: 'Mime eating popcorn, belly laugh.', about: 'Laughter is a fast, free mood reset.' }
+  { word: 'A Funny Movie', emoji: '🍿', type: 'coping', hint: 'Mime eating popcorn, belly laugh.', about: 'Laughter is a fast, free mood reset.' },
+  { word: 'Talking to a Friend', emoji: '🗨️', type: 'coping', hint: 'Mime a phone call to a buddy.', about: 'Sharing the load with someone who cares.' },
+  { word: 'Playing a Video Game', emoji: '🎮', type: 'coping', hint: 'Mime holding a controller, thumbs busy.', about: 'A low-stakes world to reset your focus.' },
+  { word: 'Making Something by Hand', emoji: '🧶', type: 'coping', hint: 'Mime knitting or crafting.', about: 'Knitting, crafts, building — hands busy.' },
+  { word: 'Cooking a Good Meal', emoji: '🍳', type: 'coping', hint: 'Mime chopping, stirring, tasting.', about: 'Slow, tasty, grounding in the kitchen.' },
+  { word: 'Stretching or Yoga', emoji: '🧘', type: 'coping', hint: 'Mime reaching for the sky, slow bend.', about: 'Slow movement to release the tightness.' },
+  { word: 'Singing', emoji: '🎤', type: 'coping', hint: 'Mime a shower concert.', about: 'Letting the feeling out through your voice.' },
+  { word: 'Watching a Favorite Show', emoji: '📺', type: 'coping', hint: 'Mime pressing play and settling in.', about: 'A familiar world to step into for a while.' },
+  { word: 'Pressing Against a Wall', emoji: '🧱', type: 'coping', hint: 'Mime pushing hard against a wall.', about: 'Pushing hard to burn off tense energy.' },
+  { word: 'Taking a Nap', emoji: '😴', type: 'coping', hint: 'Mime a quick head-down snooze.', about: 'Rest as a reset for an overloaded system.' },
+  { word: 'Reading a Book', emoji: '📚', type: 'coping', hint: 'Mime turning pages.', about: 'Losing yourself in a story for a while.' },
+  { word: 'Anxiety', emoji: '😰', type: 'emotion', hint: 'Fidget, worry tapping.', about: 'A worried, on-edge feeling about what might come.' },
+  { word: 'Frustration', emoji: '😤', type: 'emotion', hint: 'Clenched jaw, tapping foot.', about: 'Feeling blocked or stuck on the way to a goal.' },
+  { word: 'Hopelessness', emoji: '🌑', type: 'emotion', hint: 'Shoulders slumped, eyes down.', about: 'Feeling like things will not get better.' },
+  { word: 'Embarrassment', emoji: '😳', type: 'emotion', hint: 'Cover your face, turn red.', about: 'The hot feeling of being caught or exposed.' },
+  { word: 'Pride', emoji: '😌', type: 'emotion', hint: 'Chest out, chin up.', about: 'Feeling good about something you did well.' },
+  { word: 'Excitement', emoji: '🤩', type: 'emotion', hint: 'Bounce, sparkle eyes.', about: 'Bubbly, energized anticipation of something good.' },
+  { word: 'Boredom', emoji: '🥱', type: 'emotion', hint: 'Watch an imaginary clock, yawn.', about: 'The restless feeling of having nothing engaging.' },
+  { word: 'Gratitude', emoji: '🙏', type: 'emotion', hint: 'Hand on heart, warm nod.', about: 'Warm appreciation for what you have.' },
+  { word: 'Relief', emoji: '😮‍💨', type: 'emotion', hint: 'Big exhale, shoulders drop.', about: 'The release when a worry goes away.' },
+  { word: 'Contentment', emoji: '😊', type: 'emotion', hint: 'Soft smile, settled posture.', about: 'Quiet satisfaction with things as they are.' },
+  { word: 'Hurt', emoji: '💔', type: 'emotion', hint: 'Clutch your chest, sad eyes.', about: 'The sting when someone you trust wounds you.' },
+  { word: 'Resentment', emoji: '🗯️', type: 'emotion', hint: 'Grudge face, arms crossed.', about: 'Old anger you keep carrying.' },
+  { word: 'Ignoring the Feeling', emoji: '🙈', type: 'avoidance', hint: 'Cover your eyes and look away.', about: 'Pushing the emotion away instead of feeling it.' },
+  { word: 'Endless Scrolling', emoji: '📱', type: 'avoidance', hint: 'Mime thumb-scrolling forever.', about: 'Doomscrolling to distract from emotions.' },
+  { word: 'Withdrawing from People', emoji: '🚪', type: 'avoidance', hint: 'Close an imaginary door, hide.', about: 'Isolating to avoid feelings and conversations.' },
+  { word: 'Sleeping the Day Away', emoji: '🛏️', type: 'avoidance', hint: 'Mime pulling the blanket over your head.', about: 'Using sleep to escape hard feelings.' },
+  { word: 'Comfort Overeating', emoji: '🍩', type: 'avoidance', hint: 'Mime stuffing food in, not tasting.', about: 'Eating to numb instead of to fuel.' },
+  { word: 'Pretending It Is Fine', emoji: '😬', type: 'avoidance', hint: 'Big fake grin, thumbs up.', about: 'Smiling through it instead of facing it.' },
+  { word: 'Avoiding Hard Conversations', emoji: '🤐', type: 'avoidance', hint: 'Zip your lips, walk away.', about: 'Putting off the talk you know you need.' },
+  { word: 'Procrastinating', emoji: '⏳', type: 'avoidance', hint: 'Mime starting, then checking the clock.', about: 'Delaying the thing that brings up worry.' },
+  { word: 'Skipping the Trigger', emoji: '🏃', type: 'avoidance', hint: 'Mime running before something starts.', about: 'Ditching anything that might stir the feeling.' },
+  { word: 'Numbing Out', emoji: '🥴', type: 'avoidance', hint: 'Mime glazing over, checking out.', about: 'Checking out with anything that blurs the moment.' },
+  { word: 'Being Present', emoji: '👁️', type: 'validation', hint: 'Lean in, eyes open, listen.', about: 'Validation level 1: pay full attention, no judging.' },
+  { word: 'Accurate Reflection', emoji: '🔊', type: 'validation', hint: 'Mime echoing words back.', about: 'Level 2: repeat their words and feelings back to them.' },
+  { word: 'Reading the Unspoken', emoji: '🔍', type: 'validation', hint: 'Mime searching for the hidden feeling.', about: 'Level 3: guess what they are feeling but not saying.' },
+  { word: 'Validating by History', emoji: '🕰️', type: 'validation', hint: 'Mime rewinding time, then pointing at now.', about: 'Level 4: how their past makes the feeling make sense.' },
+  { word: 'Normalizing', emoji: '🤝', type: 'validation', hint: 'Open palms, warm shrug.', about: 'Level 5: "anyone would feel that way."' },
+  { word: 'Radical Genuineness', emoji: '🌟', type: 'validation', hint: 'Stand tall, meet their eyes, be real.', about: 'Level 6: real, equal, no condescension.' },
+  { word: 'Unrelenting Crisis vs. Inhibited Grieving', emoji: '🔥', type: 'dilemma', hint: 'Mime panic, then mime swallowing tears.', about: 'One pole: constant crisis. The other: not letting yourself grieve. The dialectic: face pain openly and act effectively.' },
+  { word: 'Emotional Vulnerability vs. Self-Invalidation', emoji: '💔', type: 'dilemma', hint: 'Mime a big feeling, then waving it away.', about: 'One pole: feeling everything deeply. The other: dismissing your own feelings. The dialectic: honor your feelings and your facts.' },
+  { word: 'Active Passivity vs. Apparent Competence', emoji: '🎭', type: 'dilemma', hint: 'Mime waiting for rescue, then a cool mask.', about: 'One pole: expecting others to fix it. The other: hiding that you struggle. The dialectic: ask for help and own your strength.' },
+  { word: 'Too Permissive vs. Too Authoritarian', emoji: '🍰', type: 'dilemma', hint: 'Mime giving everything, then slamming a rule.', about: 'One pole: no limits. The other: all control. The dialectic: firm and flexible.' },
+  { word: 'Normalizing vs. Pathologizing', emoji: '🩺', type: 'dilemma', hint: 'Mime "everyone does that," then a stern diagnosis.', about: 'One pole: "everyone does that." The other: "something is wrong with you." The dialectic: see the struggle as real and changeable.' },
+  { word: 'Forcing Autonomy vs. Forcing Dependence', emoji: '🪁', type: 'dilemma', hint: 'Mime shoving someone off, then pulling them close.', about: 'One pole: push independence. The other: keep them dependent. The dialectic: support while letting go.' },
+  { word: 'Mindfulness', emoji: '🧘', type: 'module', hint: 'Sit tall, close eyes, breathe.', about: 'Being awake and aware in the present moment, without judgment.' },
+  { word: 'Distress Tolerance', emoji: '🌡️', type: 'module', hint: 'Mime weathering a storm.', about: 'Skills to survive crisis moments without making things worse.' },
+  { word: 'Emotion Regulation', emoji: '🌊', type: 'module', hint: 'Mime riding a wave.', about: 'Understanding and changing your emotions.' },
+  { word: 'Interpersonal Effectiveness', emoji: '💬', type: 'module', hint: 'Mime a balanced ask.', about: 'Asking for what you need while keeping relationships and self-respect.' },
+  { word: 'Walking the Middle Path', emoji: '⚖️', type: 'module', hint: 'Hold both hands out evenly.', about: 'Balancing opposites with others, validating and dialectics.' },
+  { word: 'Assertion & Conflict', emoji: '🗣️', type: 'module', hint: 'Mime stating a need firmly and kindly.', about: 'Stating needs and handling conflict with confidence and care.' }
+];
+
+/* ---- Skill Detective: read the scene and spot which DBT skill is at work. ---- */
+const SKILL_DETECTIVE_POOL = [
+  'Observe', 'Describe', 'Participate', 'Wise Mind', 'One-Mindfully',
+  'Effectiveness', 'TIPP', 'STOP', 'ACCEPTS', 'Self-Soothe', 'Radical Acceptance',
+  'Check the Facts', 'Opposite Action', 'Riding the Wave', 'Cope Ahead', 'PLEASE',
+  'DEAR MAN', 'GIVE', 'FAST', 'Validate', 'Problem Solving', 'Effective Apology',
+  'Positive Reinforcement', 'Extinction', 'Think Dialectically'
+];
+
+const SKILL_DETECTIVE_CASES = [
+  { skillId: 'observe', scene: 'Theo sits on the bus, heart racing after a hard text. He doesn\'t fight the feeling or feed it — he just notices it, watches it rise and fade, like traffic passing the window.' },
+  { skillId: 'describe', scene: 'Priya and her brother are arguing. She pauses and says: "I feel frustrated, my shoulders are tight, and I still want to fix this."' },
+  { skillId: 'tipp', scene: 'Maya\'s panic is spiking before a test. She splashes cold water on her face, walks the hallway a few minutes, then breathes out slowly and longer than she breathes in.' },
+  { skillId: 'accepts', scene: 'Jon\'s plan got canceled and he\'s spiraling. He calls his cousin to help with her fundraiser, then offers to walk the dog — anything to shift attention away from the crisis.' },
+  { skillId: 'radical-acceptance', scene: 'Rina stares at the email: the trip is non-refundable and it isn\'t happening. She stops drafting angry replies and opens to what is true, even though she hates it.' },
+  { skillId: 'check-facts', scene: 'Dev is sure his friend is mad because a text went unread. He lists what he actually knows: "I saw it deliver. I haven\'t heard back. I do NOT know they\'re mad."' },
+  { skillId: 'opposite-action', scene: 'Scared to speak up in class, Sam\'s urge is to stay silent and invisible. Instead, Sam raises a hand, voice wobbling, and answers anyway.' },
+  { skillId: 'dearman', scene: 'Alex wants a later curfew. Alex states the facts, says how it feels, asks for the change, and offers what happens if it\'s granted — then negotiates the details calmly.' },
+  { skillId: 'give', scene: 'Noor\'s friend is venting about a terrible day. Noor leans in, keeps eye contact, nods, and says, "That sounds really hard — no wonder you\'re upset."' },
+  { skillId: 'fast', scene: 'Everyone is pressuring Lena to join a prank she doesn\'t like. She says no clearly, doesn\'t over-apologize, and doesn\'t betray what she values to fit in.' },
+  { skillId: 'riding-the-wave', scene: 'The anger surges up in Kai — hot and huge. Instead of texting the furious message, Kai pictures the wave cresting and receding, and lets it pass without acting on it.' },
+  { skillId: 'wise-mind', scene: 'Jordan has to choose between a safe job and a risky dream. Jordan writes the facts AND the feelings, then picks the step that honors both.' },
+  { skillId: 'self-soothe', scene: 'After a brutal week, Elle dims the lights, makes a warm tea, puts on a favorite song, and wraps up in a soft blanket — one sense at a time.' },
+  { skillId: 'cope-ahead', scene: 'The meeting with the counselor is tomorrow. Tonight, Imran walks through the whole conversation in his head and plans exactly which skill he\'ll use if he gets upset.' }
+];
+
+/* ---- Mindfulness Memory Match: pair each skill with its module. ---- */
+const MEMORY_MATCH_SET = ['observe', 'wise-mind', 'tipp', 'radical-acceptance', 'check-facts', 'opposite-action', 'dearman', 'give'];
+
+/* ---- Chain Analysis Puzzle: put the links of a behavior chain back in order. ---- */
+const CHAIN_PUZZLES = [
+  {
+    title: 'The Snapped Reply',
+    links: [
+      'Your little brother grabs your phone without asking',
+      'Hot anger rises and your chest tightens',
+      'Your thought: "He always does this. Zero respect."',
+      'You yell and snatch the phone back',
+      'He storms out, and the room stays cold',
+      'You feel guilty — and snapping feels more likely next time'
+    ]
+  },
+  {
+    title: 'Test-Day Panic',
+    links: [
+      'You wake up to the test alarm',
+      'You remember the chapter you barely studied',
+      'Your heart pounds and your mind goes blank',
+      'You grab your phone and start scrolling to escape',
+      'You walk into class late, foggy and rushed',
+      'You promise to review one section a night from now on'
+    ]
+  },
+  {
+    title: 'The Left-on-Read Spiral',
+    links: [
+      'You send the message and watch it sit unread',
+      'A thought slips in: "They must be mad at me"',
+      'Your chest tightens and your mood drops',
+      'You reread your own message looking for mistakes',
+      'You send a second, longer "are we okay?"',
+      'They finally reply "sorry, was driving" — and the story collapses'
+    ]
+  },
+  {
+    title: 'The Overbooked Saturday',
+    links: [
+      'You say yes to every plan for Saturday',
+      'Sunday morning you feel completely wiped out',
+      'You cancel on a friend you promised to see',
+      'You feel guilty and dodge their texts',
+      'You decide to check your values before saying yes next time'
+    ]
+  },
+  {
+    title: 'The Room-Cleaning Standoff',
+    links: [
+      'Your parent asks you to clean your room',
+      'You think: "Why does everything have to be a fight?"',
+      'You feel frustrated and slump onto the bed',
+      'You turn on a video instead of starting',
+      'Your parent raises their voice and the fight begins',
+      'You both end up angry, and the room is still messy'
+    ]
+  },
+  {
+    title: 'The Cookie Temptation',
+    links: [
+      'You promised yourself no late-night snacking',
+      'You pass the kitchen and see the cookie jar',
+      'Your mouth waters and you think "just one"',
+      'You eat three cookies, telling yourself it doesn\'t count',
+      'You feel disappointed in yourself afterward',
+      'You decide to keep the jar out of sight tomorrow'
+    ]
+  }
+];
+
+/* ---- Rapid-Fire Flashcards: name the skill from the clue. ---- */
+const FLASHCARD_DECK = [
+  { q: 'The "What" skill that means putting words to what you notice — just the facts, no opinions.', a: 'Describe' },
+  { q: 'The "What" skill that means paying attention to what is happening, like watching clouds pass.', a: 'Observe' },
+  { q: 'The "How" skill that means doing one thing at a time, fully in the moment.', a: 'One-Mindfully' },
+  { q: 'The "How" skill that means describing things without good or bad labels.', a: 'Non-Judgmental Stance' },
+  { q: 'The "How" skill that means doing what works instead of getting stuck on being right.', a: 'Effectiveness' },
+  { q: 'The crisis skill built from Temperature, Intense exercise, Paced breathing, and Paired muscle relaxation.', a: 'TIPP' },
+  { q: 'The distract-with-wise-mind acronym: Activities, Contributing, Comparisons, Emotions, Pushing away, Thoughts, Sensations.', a: 'ACCEPTS' },
+  { q: 'The skill that calms your five senses — sight, sound, touch, taste, and smell.', a: 'Self-Soothe' },
+  { q: 'Opening to reality as it is — not approving of it, just accepting what is true right now.', a: 'Radical Acceptance' },
+  { q: 'Doing the opposite of what the emotion urges you to do — approaching when scared, for example.', a: 'Opposite Action' },
+  { q: 'Does this emotion fit the facts? Look for evidence before believing the worst story.', a: 'Check the Facts' },
+  { q: 'Letting an emotion rise, peak, and fall without fighting it or acting on it.', a: 'Riding the Wave' },
+  { q: 'Treat physical illness, balance Eating, Avoid drugs, balance Sleep, get Exercise.', a: 'PLEASE' },
+  { q: 'Rehearsing the skills you will need for a hard situation before it happens.', a: 'Cope Ahead' },
+  { q: 'The asking-for-what-you-want acronym: Describe, Express, Assert, Reinforce, stay Mindful, Appear confident, Negotiate.', a: 'DEAR MAN' },
+  { q: 'The relationship-warming acronym: Gentle, Interested, Validate, Easy manner.', a: 'GIVE' },
+  { q: 'The self-respect acronym: be Fair, no over-Apologies, Stick to values, be Truthful.', a: 'FAST' },
+  { q: 'Making sense of someone\'s feelings — understanding is not the same as agreeing.', a: 'Validate' },
+  { q: 'Mapping a behavior link by link: prompting event, thoughts, action, and consequence.', a: 'Chain Analysis' },
+  { q: 'The place where reasonable mind and emotion mind meet.', a: 'Wise Mind' }
 ];
 
 /* ---- Playable DBT Jeopardy. Multiple boards; each clue has a value (v),
