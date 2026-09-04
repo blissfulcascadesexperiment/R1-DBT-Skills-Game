@@ -17,7 +17,7 @@ const DBT_MODULES = [
         name: 'Behavioral Chain Analysis',
         short: 'Map a behavior link by link: the prompting event, the thoughts and feelings, the action, and the consequence that keeps it going.',
         badge: 'The Chain-Breaker',
-        clip: { title: 'Following the chain', desc: 'A character traces a bad reaction back to its first link — the event, the thoughts, the feeling, the action — and finds the exact link they can change.' }
+        clip: { title: 'Following the chain', desc: 'A character traces a bad reaction back to its first link — the event, the thoughts, the feeling, the action — and finds the exact link they can change. From DBT Skills from Experts — DBT Chain Analysis video.', youtubeId: '6i_vDsXj2VA' }
       },
       {
         id: 'biosocial-theory',
@@ -38,14 +38,14 @@ const DBT_MODULES = [
         name: 'Emotion Mind',
         short: 'Facts are distorted by the strength of feeling. Everything is filtered through the mood.',
         badge: 'The Feeling Mind',
-        clip: { title: 'When the feeling runs the show', desc: 'A character sees everything through their mood — the facts blur and the story turns dramatic. Emotion mind at full volume.' }
+        clip: { title: 'When the feeling runs the show', desc: 'A character sees everything through their mood — the facts blur and the story turns dramatic. Emotion mind at full volume. From Counseling Center Group — Managing Extreme Emotions video.', youtubeId: 'ayf8xBl3F9s' }
       },
       {
         id: 'reasonable-mind',
         name: 'Reasonable Mind',
         short: 'Cool, logical, fact-driven — but missing the human layer of what you feel.',
         badge: 'The Fact-Mind',
-        clip: { title: 'Pure logic', desc: 'A character works a problem with total clarity — facts in, plan out — while the feelings in the room go unacknowledged.' }
+        clip: { title: 'Pure logic', desc: 'A character works a problem with total clarity — facts in, plan out — while the feelings in the room go unacknowledged. From Counseling Center Group — Wise Mind video.', youtubeId: 'UQu904FEafo' }
       },
       {
         id: 'wise-mind',
@@ -73,35 +73,36 @@ const DBT_MODULES = [
         name: 'Participate',
         short: 'Throw yourself in — enter wholly into the experience and go all in, without self-consciousness.',
         badge: 'The Wholehearted',
-        clip: { title: 'All in', desc: 'A character stops watching from the edge and throws themselves fully into the moment — singing, dancing, present.' }
+        clip: { title: 'All in', desc: 'A character stops watching from the edge and throws themselves fully into the moment — singing, dancing, present.', youtubeId: 'fQYYdcJ2f8M' }
       },
       {
         id: 'non-judgmental',
         name: 'Non-Judgmental Stance',
         short: 'Things are neither good nor bad — suspend evaluation and just let them be.',
         badge: 'The Judge-Letter',
-        clip: { title: 'Without the labels', desc: 'A character describes a situation plainly — no “good,” no “bad,” no verdict — just what is.' }
+        clip: { title: 'Without the labels', desc: 'A character describes a situation plainly — no “good,” no “bad,” no verdict — just what is. A Counseling Center Group DBT How Skills video.', youtubeId: 'fmC-1u75sUM' }
       },
       {
         id: 'one-mindfully',
         name: 'One-Mindful',
         short: 'Do one thing at a time, with full attention. When the mind wanders, bring it back.',
         badge: 'The Single-Tasker',
-        clip: { title: 'One thing at a time', desc: 'A character sets everything else aside and gives one task their whole attention — returning when the mind drifts.' }
+        clip: { title: 'One thing at a time', desc: 'A character sets everything else aside and gives one task their whole attention — returning when the mind drifts. A Counseling Center Group DBT How Skills video.', youtubeId: 'NFsG3s3XWqk' }
       },
       {
         id: 'effectiveness',
         name: 'Effectiveness',
         short: 'Do what works. Let go of fair/unfair, right/wrong, and anger — play by the rules of the situation.',
         badge: 'The Pragmatist',
-        clip: { title: 'What works', desc: 'A character drops the "shoulds" and chooses the response that actually solves the problem in front of them.' }
+        clip: { title: 'What works', desc: 'A character drops the "shoulds" and chooses the response that actually solves the problem in front of them.', youtubeId: 'g0WOF-Y0kK4' }
       },
       {
         id: 'spiritual-perspective',
         name: 'Spiritual Perspective / Loving Kindness',
         short: 'Connect to something bigger than yourself, and wish well for yourself and others — loving kindness as a daily practice.',
         badge: 'The Kind Heart',
-        clip: { title: 'May you be well', desc: 'A character pauses to wish safety and kindness toward themselves and someone who hurt them — a moment of loving kindness.' }
+        clip: { title: 'May you be well', desc: 'A character pauses to wish safety and kindness toward themselves and someone who hurt them — a moment of loving kindness. From Counseling Center Group — Mindfulness of Current Emotions video.', youtubeId: 'QlwQ9tIkLAA' },
+        extraClips: [{ title: 'The True Meaning of Loving Kindness', desc: 'Ajahn Amaro explores the Buddhist roots and practical application of loving kindness — a meditation on wishing well for all beings.', youtubeId: 's8k-z53CanA' }]
       }
     ]
   },
@@ -118,7 +119,7 @@ const DBT_MODULES = [
         name: 'Distract with Wise Mind ACCEPTS',
         short: 'Distract with Wise Mind — Activities, Compare, Contribute, Emotions, Put away, Thoughts, Sensations. Shift attention away from the crisis.',
         badge: 'The Distractor',
-        clip: { title: 'Change the channel', desc: 'A character in a spiral flips to a new activity, compares themselves to someone doing better, and lets the moment pass.' }
+        clip: { title: 'Change the channel', desc: 'A character in a spiral flips to a new activity, compares themselves to someone doing better, and lets the moment pass. From DBT Skills from Experts — Distract with Accepts video.', youtubeId: 'bl1Sy7xR92g' }
       },
       {
         id: 'improve',
@@ -133,14 +134,14 @@ const DBT_MODULES = [
         name: 'Self-Soothe',
         short: 'Comfort your five senses — touch, taste, vision, smell, hearing. Soothing the body quiets the storm.',
         badge: 'The Soother',
-        clip: { title: 'Five senses, one calm', desc: 'A character wraps up in a soft blanket, sips something warm, and notices what the room sounds and smells like.' }
+        clip: { title: 'Five senses, one calm', desc: 'A character wraps up in a soft blanket, sips something warm, and notices what the room sounds and smells like. From DBT Skills from Experts — Self Soothe video.', youtubeId: 'CwnHez9TC6c' }
       },
       {
         id: 'pros-cons',
         name: 'Pros and Cons',
         short: 'Think about the positive and negative consequences of your actions — react now vs. ride it out. Let the paper decide.',
         badge: 'The Thinker',
-        clip: { title: 'The two-column list', desc: 'A character writes “react now” vs “wait” in two columns and sees the future they want in black and white.' }
+        clip: { title: 'The two-column list', desc: 'A character writes "react now" vs "wait" in two columns and sees the future they want in black and white. From Counseling Center Group — Pros and Cons video.', youtubeId: '8ua0mFEloSo' }
       },
       {
         id: 'stop',
@@ -155,28 +156,28 @@ const DBT_MODULES = [
         short: 'Temperature, Intense exercise, Paced breathing, Progressive muscle relaxation — quick body calmers.',
         badge: 'The Body Tamer',
         clip: { title: 'Cold water + slow breath', desc: 'In a locker room, a character splashes cold water on their face, then breathes out longer than they breathe in.', youtubeId: 'UuvH_j9O0f4' },
-        extraClips: [{ title: 'DBT TIPP Skills — 4 Easy Tricks to Calm Down Fast', desc: 'Dr. Kiki walks through all four TIPP skills in action — cold water for the dive reflex, intense exercise to burn off stress energy, paced breathing with a longer exhale, and paired muscle relaxation.', youtubeId: 'NISIubon-8Q' }]
+        extraClips: [{ title: 'DBT TIPP Skills — 4 Easy Tricks to Calm Down Fast', desc: 'Dr. Kiki walks through all four TIPP skills in action — cold water for the dive reflex, intense exercise to burn off stress energy, paced breathing with a longer exhale, and paired muscle relaxation.', youtubeId: 'NISIubon-8Q' }, { title: 'TIP the Temperature', desc: 'Counseling Center Group explains the temperature component of TIPP — using cold water or ice to trigger the dive reflex and calm intense emotion.', youtubeId: 'zB4IZwB_puk' }]
       },
       {
         id: 'radical-acceptance',
         name: 'Radical Acceptance',
         short: 'Accept reality as it is — not approving, just opening to what\'s true. Be willing, and turn the mind back when it resists.',
         badge: 'The Acceptor',
-        clip: { title: 'Turning the mind', desc: 'A character stops fighting what is — the bad news doesn\'t become good, but they stop burning energy denying it.' }
+        clip: { title: 'Turning the mind', desc: 'A character stops fighting what is — the bad news doesn\'t become good, but they stop burning energy denying it. From Counseling Center Group — Radical Acceptance video.', youtubeId: 'JOTBn6L-tWc' }
       },
       {
         id: 'turning-the-mind',
         name: 'Turning the Mind',
         short: 'Choose, again and again, to accept reality. When your mind resists, gently turn it back to acceptance — like choosing the acceptance fork every time you reach the crossroads.',
         badge: 'The Fork-Chooser',
-        clip: { title: 'Back to the fork', desc: 'A character whose mind keeps drifting back to "this shouldn\'t be happening" notices, and turns their mind back to what is — again and again.' }
+        clip: { title: 'Back to the fork', desc: 'A character whose mind keeps drifting back to "this shouldn\'t be happening" notices, and turns their mind back to what is — again and again. From Counseling Center Group — Turning the Mind video.', youtubeId: '6z8ADNyFiqI' }
       },
       {
         id: 'willingness-willfulness',
         name: 'Willingness vs. Willfulness',
         short: 'Willingness: do what the moment calls for, on purpose, with an open hand. Willfulness: fight reality, refuse, and sit in "I won\'t."',
         badge: 'The Open Hand',
-        clip: { title: 'Open hands', desc: 'One character grips tight and refuses; another opens their hands to the task in front of them — willingness vs. willfulness side by side.' }
+        clip: { title: 'Open hands', desc: 'One character grips tight and refuses; another opens their hands to the task in front of them — willingness vs. willfulness side by side. From Counseling Center Group — Willingness video.', youtubeId: 'HtSk9o2y_Zw' }
       },
       {
         id: 'half-smile-willing-hands',
@@ -184,7 +185,7 @@ const DBT_MODULES = [
         short: 'A slight half smile and relaxed, open hands — posture that tells your body to accept what is, one mindful breath at a time.',
         badge: 'The Half-Smiler',
         clip: { title: 'The accepting posture', desc: 'A character softens their face and unclenches their hands — and the acceptance in their body quiets the fight in their head.' },
-        extraClips: [{ title: 'Half-Smile and Willing Hands — Accepting Reality With Your Body', desc: 'A clinician walks through the body-mind loop behind half-smiling and willing hands: a slight Mona Lisa smile and open, palms-up hands tell your body to stop bracing.', youtubeId: '9Imu7jCxWWY' }]
+        extraClips: [{ title: 'Half-Smile and Willing Hands — Accepting Reality With Your Body', desc: 'A clinician walks through the body-mind loop behind half-smiling and willing hands: a slight Mona Lisa smile and open, palms-up hands tell your body to stop bracing.', youtubeId: '9Imu7jCxWWY' }, { title: 'Willing Hands', desc: 'The DBT Willing Hands skill: aligning posture with acceptance — unclenched hands, palms up, fingers relaxed.', youtubeId: 'HZEzLcIy7DI' }]
       }
     ]
   },
@@ -229,7 +230,7 @@ const DBT_MODULES = [
         name: 'THINK',
         short: 'Think about the situation, Have empathy, check your Interpretations, Notice, use Kindness — see the other person\'s side.',
         badge: 'The Perspective-Taker',
-        clip: { title: 'Walk in their shoes', desc: 'A character who felt wronged pauses and imagines the other person\'s day — the fight softens before they speak.' }
+        clip: { title: 'Walk in their shoes', desc: 'A character who felt wronged pauses and imagines the other person\'s day — the fight softens before they speak. From Counseling Center Group — DBT Think Skill video.', youtubeId: 'vpM_buInxis' }
       }
     ]
   },
@@ -246,14 +247,14 @@ const DBT_MODULES = [
         name: 'Positive Reinforcement',
         short: 'Reward the behavior you want to see more of — praise, attention, privileges — so it shows up again.',
         badge: 'The Rewarder',
-        clip: { title: 'Catch them doing good', desc: 'A character stops scolding and starts noticing: “I saw you put that away without being asked.”' }
+        clip: { title: 'Catch them doing good', desc: 'A character stops scolding and starts noticing: “I saw you put that away without being asked.” From Counseling Center Group — Behavior Changing video.', youtubeId: '_Ua6QskYlSA' }
       },
       {
         id: 'negative-reinforcement',
         name: 'Negative Reinforcement',
         short: 'Remove something unpleasant when the desired behavior appears — the relief makes the behavior more likely.',
         badge: 'The Remover',
-        clip: { title: 'Taking the pressure off', desc: 'When the child does the chore without the nagging, the nagging stops — and the behavior sticks.' }
+        clip: { title: 'Taking the pressure off', desc: 'When the child does the chore without the nagging, the nagging stops — and the behavior sticks. From Counseling Center Group — Behavior Changing video.', youtubeId: '_Ua6QskYlSA' }
       },
       {
         id: 'shaping',
@@ -276,21 +277,21 @@ const DBT_MODULES = [
         name: 'Positive Punishment',
         short: 'Add something unpleasant after a behavior to make it less likely — a consequence, not a lesson in shame.',
         badge: 'The Consequence',
-        clip: { title: 'The added consequence', desc: 'A rule gets a consequence — miss curfew, lose the car keys — so the behavior has a cost.' }
+        clip: { title: 'The added consequence', desc: 'A rule gets a consequence — miss curfew, lose the car keys — so the behavior has a cost. From Counseling Center Group — Behavior Changing video.', youtubeId: '_Ua6QskYlSA' }
       },
       {
         id: 'negative-punishment',
         name: 'Negative Punishment',
         short: 'Take away something valued after a behavior to make it less likely — lose the privilege, keep the lesson.',
         badge: 'The Withholder',
-        clip: { title: 'The privilege goes', desc: 'A character loses screen time for breaking a rule — the removal makes the rule real.' }
+        clip: { title: 'The privilege goes', desc: 'A character loses screen time for breaking a rule — the removal makes the rule real. From Counseling Center Group — Behavior Changing video.', youtubeId: '_Ua6QskYlSA' }
       },
       {
         id: 'validate-self',
         name: 'Validate Self',
         short: 'Make sense of yourself — your thoughts, feelings, desires, and actions make sense given your history.',
         badge: 'The Self-Understander',
-        clip: { title: 'Your reaction makes sense', desc: 'A character traces their own strong reaction back to what shaped it — and stops judging themselves for it.' }
+        clip: { title: 'Your reaction makes sense', desc: 'A character traces their own strong reaction back to what shaped it — and stops judging themselves for it. From Counseling Center Group — Self-Validation video.', youtubeId: 'vt0LinCdY0s' }
       },
       {
         id: 'validate-others',
@@ -304,14 +305,14 @@ const DBT_MODULES = [
         name: 'Think Dialectically',
         short: 'Neither black nor white — hold both sides at the same time. There\'s always another way to see it.',
         badge: 'The Both-And Thinker',
-        clip: { title: 'Two truths at once', desc: 'A character stops choosing a side and sees both truths holding together — anger and love in the same sentence.' }
+        clip: { title: 'Two truths at once', desc: 'A character stops choosing a side and sees both truths holding together — anger and love in the same sentence. From Counseling Center Group — Dialectics video.', youtubeId: 'zkZYT172POs' }
       },
       {
         id: 'act-dialectically',
         name: 'Act Dialectically',
         short: 'Walk the middle path — act from balance, not from a single extreme.',
         badge: 'The Middle-Walker',
-        clip: { title: 'Both and', desc: 'A character holds two truths at once — angry AND still wanting to fix it — and acts from that balance.' }
+        clip: { title: 'Both and', desc: 'A character holds two truths at once — angry AND still wanting to fix it — and acts from that balance. From Counseling Center Group — Dialectics video.', youtubeId: 'zkZYT172POs' }
       }
     ]
   },
@@ -328,42 +329,42 @@ const DBT_MODULES = [
         name: 'Identify and Label Emotions',
         short: 'Notice and describe emotions as they arise — name the emotion, its trigger, and the urge to act on it.',
         badge: 'The Feelings-Watcher',
-        clip: { title: 'Name it to tame it', desc: 'A character pauses mid-argument and names exactly what they feel and why — the emotion loses its grip the moment it has a name.' }
+        clip: { title: 'Name it to tame it', desc: 'A character pauses mid-argument and names exactly what they feel and why — the emotion loses its grip the moment it has a name. From Counseling Center Group — Naming Emotions video.', youtubeId: 'aq_mV3fx4UA' }
       },
       {
         id: 'pleasant-activities',
         name: 'Engage in Pleasant Activities',
         short: 'Do fun things in the short-term and the long-term — on purpose, for the enjoyment itself.',
         badge: 'The Joy-Seeker',
-        clip: { title: 'Savoring the moment', desc: 'A character drops their worries and does something purely for fun, letting themselves enjoy it fully.' }
+        clip: { title: 'Savoring the moment', desc: 'A character drops their worries and does something purely for fun, letting themselves enjoy it fully. From Counseling Center Group — Accumulating Positive Emotions video.', youtubeId: 'g1Ef8wQOKnM' }
       },
       {
         id: 'values-priorities',
         name: 'Values and Priorities',
         short: 'Know what matters to you in wise mind, and let your values set your priorities.',
         badge: 'The Compass',
-        clip: { title: 'What matters most', desc: 'A character sorts what they care about and chooses the one thing to protect first.' }
+        clip: { title: 'What matters most', desc: 'A character sorts what they care about and chooses the one thing to protect first. From Counseling Center Group — Values video.', youtubeId: 'zeBo60XX8No' }
       },
       {
         id: 'long-term-goals',
         name: 'Work Toward Long-Term Goals',
         short: 'Identify long-term goals and take small steps toward them, one day at a time.',
         badge: 'The Climber',
-        clip: { title: 'Small steps, big goal', desc: 'A character breaks a far-off dream into today-sized steps and starts with the first one.' }
+        clip: { title: 'Small steps, big goal', desc: 'A character breaks a far-off dream into today-sized steps and starts with the first one. From Counseling Center Group — Accumulating Positive Emotions video.', youtubeId: '-O_Cop7DDL8' }
       },
       {
         id: 'build-mastery',
         name: 'Build Mastery',
         short: 'Do things that make you feel proud and confident about yourself.',
         badge: 'The Builder',
-        clip: { title: 'A skill you own', desc: 'A character practices something until it clicks, and the confidence shows.' }
+        clip: { title: 'A skill you own', desc: 'A character practices something until it clicks, and the confidence shows. From Counseling Center Group — Building Mastery video.', youtubeId: 'OXbmVQR5zCo' }
       },
       {
         id: 'cope-ahead',
         name: 'Cope Ahead',
         short: 'Rehearse the skills you will need for a hard situation before it happens.',
         badge: 'The Scout',
-        clip: { title: 'The rehearsal', desc: 'A character walks through tomorrow\'s hard conversation in their head and plans exactly which skill to use.' }
+        clip: { title: 'The rehearsal', desc: 'A character walks through tomorrow\'s hard conversation in their head and plans exactly which skill to use. From Counseling Center Group — Cope Ahead video.', youtubeId: 'pi5WCiM5HBM' }
       },
       {
         id: 'abc-please',
@@ -377,14 +378,14 @@ const DBT_MODULES = [
         name: 'Check the Facts',
         short: 'Does this emotion fit the facts? Look for evidence before believing the worst story.',
         badge: 'The Fact-Checker',
-        clip: { title: 'The unread message', desc: 'A character spirals over a "seen" text, then lists what they actually know vs. what they\'re imagining.' }
+        clip: { title: 'The unread message', desc: 'A character spirals over a "seen" text, then lists what they actually know vs. what they\'re imagining. From Counseling Center Group — Check the Facts video.', youtubeId: 'Q2wRmKsYcyw' }
       },
       {
         id: 'do-problem-solving',
         name: 'Do Problem Solving',
         short: 'Identify the problem, generate solutions, pick the best one, and take one step.',
         badge: 'The Solver',
-        clip: { title: 'The plan', desc: 'A character turns a big overwhelming problem into a list of options and picks one to try.' }
+        clip: { title: 'The plan', desc: 'A character turns a big overwhelming problem into a list of options and picks one to try. From Counseling Center Group — Problem Solving video.', youtubeId: 'zf8F94y_TRs' }
       },
       {
         id: 'opposite-action',
@@ -398,7 +399,7 @@ const DBT_MODULES = [
         name: 'Riding the Wave',
         short: 'Emotions are like waves — they rise, peak, and fall. Don\'t fight the wave; ride it out without acting on it.',
         badge: 'The Wave-Rider',
-        clip: { title: 'Surf the surge', desc: 'A character lets the big feeling swell, peak, and recede without being swept along — watching the wave instead of swimming against it.' }
+        clip: { title: 'Surf the surge', desc: 'A character lets the big feeling swell, peak, and recede without being swept along — watching the wave instead of swimming against it. From Counseling Center Group — Urge Surfing video.', youtubeId: 'KmqddB2YAxU' }
       }
     ]
   },
@@ -423,7 +424,7 @@ const DBT_MODULES = [
         name: 'Effective Apology',
         short: 'Name the harm, take responsibility, fix what you can, and change the behavior going forward.',
         badge: 'The Repairer',
-        clip: { title: 'The real sorry', desc: 'A character says the specific thing they did wrong, doesn’t make excuses, and asks how to make it right.' }
+        clip: { title: 'The real sorry', desc: 'A character says the specific thing they did wrong, doesn’t make excuses, and asks how to make it right. From TED-Ed — The best way to apologize (according to science).', youtubeId: 'q-ApAdEOm5s' }
       }
     ]
   }

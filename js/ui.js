@@ -1016,11 +1016,18 @@ const UI = {
                 <div class="skill-name-row"><b>Mindfulness "What" and "How" skills</b><span class="skill-tag video">▶ DBT-RU</span></div>
                 <div class="skill-desc">The "What" skills — Observe, Describe, Participate — and the "How" skills — Non-judgmentally, One-Mindfully, Effectively.</div>
                 <div class="clip-video sm" style="margin-top:10px">${this.videoEmbed('PCJ0R6vAUnw')}</div>
+              </div>
+              <div class="skill-item" style="border-top:2px solid var(--accent);margin-top:12px;padding-top:12px">
+                <div class="skill-name-row"><b>🔹 What Skills</b></div>
+                <div class="skill-desc">Observe, Describe, Participate — these are the "what" of mindfulness: what you do to practice it.</div>
               </div>` : ''}
               ${skills.map(s => {
                 const badged = Engine.skillBadged(s.id);
                 const prog = Math.min(Engine.state.proficiency[s.id] || 0, 2);
-                return `<div class="skill-item" data-act="modal-skill" data-skill="${s.id}">
+                const isHowSkill = s.id === 'non-judgmental' || s.id === 'one-mindfully' || s.id === 'effectiveness';
+                const showHowHeading = m.id === 'mindfulness' && isHowSkill && !skills.some(sk => sk.id === 'non-judgmental');
+                return `${showHowHeading ? `<div class="skill-item" style="border-top:2px solid var(--accent);margin-top:12px;padding-top:12px"><div class="skill-name-row"><b>🔹 How Skills</b></div><div class="skill-desc">Non-judgmentally, One-Mindfully, Effectively — these are the "how" of mindfulness: how you do it.</div></div>` : ''}
+                <div class="skill-item" data-act="modal-skill" data-skill="${s.id}">
                   <div class="skill-name-row"><b>${s.name}</b>${s.clip.youtubeId ? '<span class="skill-tag video">▶ DBT-RU</span>' : ''}${badged ? '<span class="skill-tag earned">🏅 ' + esc(s.badge) + '</span>' : '<span class="skill-tag">badge: ' + esc(s.badge) + '</span>'}</div>
                   <div class="skill-desc">${esc(s.short)}</div>
                   ${s.clip.youtubeId ? `<div class="clip-video sm" style="margin-top:10px"><div class="skill-name-row"><b>${esc(s.clip.title)}</b><span class="skill-tag video">▶ DBT-RU</span></div>${s.clip.desc ? `<p class="muted" style="margin:6px 0 0">${esc(s.clip.desc)}</p>` : ''}${this.videoEmbed(s.clip.youtubeId)}</div>` : ''}
